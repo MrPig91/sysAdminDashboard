@@ -38,6 +38,31 @@ function New-UIRunspace{
             $UIHash.MemoryDefaultCounterComboBox.DisplayMemberPath = "FriendlyName"
             $UIHash.ThermalsDefaultCountersCombo = $MainWindow.FindName("defaultThermalCounterCombobox")
             $UIHash.ThermalsDefaultCountersCombo.DisplayMemberPath = "FriendlyName"
+
+            #Listboxes
+            $UIHash.computerListbox = $MainWindow.FindName("computerListbox")
+            $UIHash.computerListbox.DisplayMemberPath = "ComputerName"
+
+            #ListViews
+            $UIHash.ComputerListView = $MainWindow.FindName("ComputerListView")
+            $UIHash.ListgridView = $MainWindow.FindName("ListViewGrid")
+            $ListViewColumnHeaderProperties = "ComputerName","IPAddress","OperatingSystem","SerialNumber"
+
+            $ListViewColumnHeaderProperties | foreach {
+                $gridViewColumn = [System.Windows.Controls.GridViewColumn]::new()
+                $gridViewColumn.Header = $_
+                $Binding = [System.Windows.Data.Binding]::new($_)
+                $Binding.Mode = [System.Windows.Data.BindingMode]::OneWay
+                $gridViewColumn.DisplayMemberBinding = $Binding
+                $UIHash.ListgridView.Columns.Add($gridViewColumn)
+            }
+            $UIHash.ComputerListView.View = $gridView
+
+            #Checkboxes
+            $UIHash.EnabledCheckBox = $MainWindow.FindName("LogCheckbox")
+
+            #Slider
+            $UIHash.TimeIntervalSlider = $MainWindow.FindName("timeIntervalTrack")
     
             $UIHash.MainWindow.ShowDialog()
         }
