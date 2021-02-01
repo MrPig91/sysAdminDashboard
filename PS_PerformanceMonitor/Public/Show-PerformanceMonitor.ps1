@@ -17,7 +17,13 @@ function Show-PerformanceMonitor {
     $DataHash.ModuleRoot = $MyInvocation.MyCommand.Module.ModuleBase
     $DataHash.PrivateFunctions = Join-Path -Path $DataHash.ModuleRoot -ChildPath "Private"
     $DataHash.Assemblies = Join-Path -Path $DataHash.ModuleRoot -ChildPath "Assemblies"
+    $DataHash.WPF = Join-Path -Path $DataHash.ModuleRoot -ChildPath "WPF"
 
+    #Import required assemblies and private functions
     Get-childItem -Path $DataHash.PrivateFunctions | ForEach-Object {Import-Module $_.FullName}
     Get-childItem -Path $DataHash.Assemblies | ForEach-Object {Add-Type -AssemblyName $_.FullName}
+
+    #Create UI Thread
+    $UIRunspace = New-UIRunspace
+    $UIRunspace.RunspacePool = $RunspacePool
 }
