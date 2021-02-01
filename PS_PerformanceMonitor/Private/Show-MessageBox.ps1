@@ -8,5 +8,5 @@ function Show-Messagebox {
         [System.Windows.MessageBoxImage]$Icon = [System.Windows.MessageBoxImage]::None
     )
 
-    [System.Windows.Forms.MessageBox]::Show($Text,$Title,$Buttons,$Icon)
+    [System.Windows.MessageBox]::Show($Text,$Title,$Buttons,$Icon)
 }
