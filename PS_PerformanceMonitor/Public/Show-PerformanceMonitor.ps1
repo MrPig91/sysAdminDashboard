@@ -1,6 +1,5 @@
 function Show-PerformanceMonitor {
     Add-Type -AssemblyName PresentationFramework
-    Add-Type -AssemblyName WindowsFormsIntegration
 
     $UIHash = [hashtable]::Synchronized(@{})
     $DataHash = [hashtable]::Synchronized(@{})
@@ -20,10 +19,11 @@ function Show-PerformanceMonitor {
     $DataHash.WPF = Join-Path -Path $DataHash.ModuleRoot -ChildPath "WPF"
 
     #Import required assemblies and private functions
-    Get-childItem -Path $DataHash.PrivateFunctions | ForEach-Object {Import-Module $_.FullName}
-    Get-childItem -Path $DataHash.Assemblies | ForEach-Object {Add-Type -AssemblyName $_.FullName}
+    Get-childItem -Path $DataHash.PrivateFunctions -File | ForEach-Object {Import-Module $_.FullName}
+    Get-childItem -Path $DataHash.Assemblies -File | ForEach-Object {Add-Type -Path $_.FullName}
 
     #Create UI Thread
-    $UIRunspace = New-UIRunspace
+    $UIRunspace = NEw-UIRunspace
     $UIRunspace.RunspacePool = $RunspacePool
+    [void]$UIRunspace.BeginInvoke()
 }
