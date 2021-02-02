@@ -198,7 +198,7 @@
                                 <RowDefinition Height="5" />
                             </Grid.RowDefinitions>
                             <Grid x:Name="liveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
-                                <lvc:CartesianChart x:Name="lineChart" LegendLocation="None" >
+                                <lvc:CartesianChart x:Name="CPULineChart" LegendLocation="None" >
                                     <lvc:CartesianChart.AxisY>
                                         <lvc:Axis Title="Value" ></lvc:Axis>
                                     </lvc:CartesianChart.AxisY>
