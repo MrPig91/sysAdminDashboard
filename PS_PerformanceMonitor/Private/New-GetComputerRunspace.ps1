@@ -6,14 +6,12 @@ function New-GetComputerRunspace {
         Get-childItem -Path $DataHash.Classes -File | ForEach-Object {Import-Module $_.FullName}
         
         $ErrorActionPreference = "Stop"
-        $AllComputers = New-Object System.Collections.ObjectModel.ObservableCollection[System.Object]
         try {
-            $AllComputers = Get-ADComputer -Filter * -Properties IPv4Address,OperatingSystem,SerialNumber -ErrorAction Stop | select @{n="ComputerName";e={$_.Name}},@{n="IPAddress";e={$_.IPv4Address}},SerialNumber,OperatingSystem
-            foreach ($computer in $AllComputers){
+            Get-ADComputer -Filter * -Properties IPv4Address,OperatingSystem,SerialNumber -ErrorAction Stop | foreach {
+                $computer = [ComputerListViewItem]::new($_.Name,$_.OperatingSystem,$_.IPv4Address,$_.SerialNumber,$true)
                 $DataHash.AllComputers.Add($computer)
             }
 
-            $UIHash.ComputerListbox.Dispatcher.Invoke([action]{$UIHash.ComputerListbox.ItemsSource = $DataHash.AllComputers})
             $UIHash.ComputerSearchBox.Dispatcher.Invoke([action]{$UIHash.ComputerSearchBox.IsEnabled = $true})
         }
         catch{
