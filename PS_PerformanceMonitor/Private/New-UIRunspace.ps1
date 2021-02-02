@@ -21,6 +21,10 @@ function New-UIRunspace{
             $UIHash.DeSelectAllButton = $MainWindow.FindName("DeSelectAllButton")
             $UIHash.RemoveSelectedButton = $MainWindow.FindName("RemoveSelectedButton")
 
+            $UIHash.CPUStartButton = $MainWindow.FindName("cpuStartButton")
+            $UIHash.CPUStopButton = $MainWindow.FindName("cpuStopButton")
+            $UIHash.CPURemoveCountersButton = $MainWindow.FindName("cpuRemoveSelectedButton")
+
             #Textboxes
             $UIHash.computerSearchbox = $MainWindow.FindName("computerSearchbox")
             $UIHash.ComputerSearchbox.IsEnabled = $false
@@ -52,6 +56,23 @@ function New-UIRunspace{
 
             $ScriptsHash.DefaultCounters | foreach {$_.BeginInvoke()}
 
+            $allColors = ([System.Windows.Media.Colors] | Get-Member -Static -MemberType Properties).Name
+            $UIHash.CPUCombo = $MainWindow.FindName("cpuLineColor")
+            $UIHash.CPUCombo.ItemsSource = $allColors
+            $UIHash.CPUCombo.ADD_SelectionChanged({
+                if ($UIHash.CPUListView.SelectionIndex -ne -1 -and $UIHash.CPUListView.SelectedItem.LineColor -ne $UIHash.CPUCombo.SelectedItem){
+                    $UIHash.CPUListView.SelectedItem.LineColor = $UIHash.CPUCombo.SelectedItem
+
+                    $Index = ($DataHash.SeriesCollectionTitles | where Title -eq $UIHash.CPUListView.SelectedItem.Name).Index
+                    $CloneStrokeColor = $UIHash.CPUChartSeries[$Index].Stroke.Clone()
+                    $CloneFillColor = $UIHash.CPUChartSeries[$Index].Fill.Clone()
+                    $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.CPUCombo.SelectedItem)
+                    $UIHash.CPUChartSeries[$Index].Fill = $CloneFillColor
+                    $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.CPUCombo.SelectedItem)
+                    $UIHash.CPUChartSeries[$Index].Stroke = $CloneStrokeColor
+                }
+            })
+
 
             #Listboxes
             $UIHash.computerListbox = $MainWindow.FindName("computerListbox")
@@ -79,11 +100,70 @@ function New-UIRunspace{
             }
             $UIHash.ComputerListView.View = $UIHash.ListgridView
 
+            #cpu
+            $UIHash.CPUListView = $MainWindow.FindName("cpuListView")
+            $UIHash.CPUListView.SelectionMode = [System.Windows.Controls.SelectionMode]::Single
+            $UIHash.CPUGridView = $MainWindow.FindName("cpuGridView")
+
+            $cpuListViewProperties = "Counter","ComputerName","Instance","Units","Value","LineColor"
+
+            $cpuListViewProperties | foreach {
+                $gridViewColumn = [System.Windows.Controls.GridViewColumn]::new()
+                $gridViewColumn.Header = $_
+                $Binding = [System.Windows.Data.Binding]::new($_)
+                $Binding.Mode = [System.Windows.Data.BindingMode]::TwoWay
+                $gridViewColumn.DisplayMemberBinding = $Binding
+                $UIHash.CPUGridView.Columns.Add($gridViewColumn)
+            }
+
+            $cpuListViewItems = New-Object -TypeName System.Collections.ObjectModel.ObservableCollection[System.Object]
+            [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($cpuListViewItems ,[System.Object]::new())
+            $DataHash.ListViewItems = $cpuListViewItems
+            $UIHash.CPUListView.ItemsSource = $DataHash.ListViewItems
+            $UIHash.CPUListView.ADD_SelectionChanged({
+                if ($UIHash.CPUListView.SelectionIndex -ne -1){
+                    $UIHash.CPUCombo.SelectedItem = $UIHash.CPUListView.SelectedItem.LineColor
+                    $UIHash.CPUSlider.Value = $UIHash.CPUListView.SelectedItem.LineThickness
+                }
+            })
+
+            $DataHash.ListViewList = New-Object System.Collections.Generic.List[System.Object]
+            1.. 30 | foreach {
+                $newCounterListViewItem = [CounterListViewItem]::new()
+                $newCounterListViewItem.IsChecked = $true
+                $DataHash.ListViewList.Add($newCounterListViewItem)
+            }
+
             #Checkboxes
             $UIHash.EnabledCheckBox = $MainWindow.FindName("LogCheckbox")
 
             #Slider
             $UIHash.TimeIntervalSlider = $MainWindow.FindName("timeIntervalTrack")
+            $UIHash.CPUSlider = $MainWindow.FindName("cpulineThickness")
+            $UIHash.CPUSlider.Add_ValueChanged({
+                if ($UIHash.CPUListView.SelectionIndex -ne -1 -and $UIHash.CPUListView.SelectedItem.LineThickness -ne $UIHash.CPUSlider.Value){
+                    $UIHash.CPUListView.SelectedItem.LineThickness = $UIHash.CPUSlider.Value
+
+                    $Index = ($DataHash.SeriesCollectionTitles | where Title -eq $UIHash.CPUListView.SelectedItem.Name).Index
+                    $UIHash.CPUChartSeries[$index].StrokeThickness = $UIHash.CPUSlider.Value
+                }
+            })
+
+            #Line Charts
+            $UIHash.CPULineChart = $MainWindow.FindName("CPULineChart")
+            $CPUSeriesCollection = [LiveCharts.SeriesCollection]::new()
+            $UIHash.CPULineChart.Series = $CPUSeriesCollection
+            $UIHash.CPUChartSeries = $UIHash.CPULineChart.Series
+            $DataHash.SeriesCollectionTitles = [System.Collections.ArrayList]::new()
+            $DataHash.CPUChartValues = New-Object System.Collections.Generic.List[System.Object]
+            $newLineSeries = 1..30 | foreach {
+                $newLineSeries = [LiveCharts.Wpf.LineSeries]::new()
+                $chartValues = [LiveCharts.ChartValues[LiveCharts.Defaults.ObservablePoint]]::new()
+                [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($chartValues, [System.Object]::new())
+                $newLineSeries.Values = $chartValues
+                $UIHash.CPULineChart.Series.Add($newLineSeries)
+                $DataHash.CPUChartValues.Add($chartValues)
+            }
 
             #Button Click Events
             $UIHash.AddComputerButton.ADD_Click({
@@ -111,13 +191,43 @@ function New-UIRunspace{
                     $DataHash.addedComputers.Remove($computer)
                 }
             })
+
+            $UIHash.CPUStartButton.ADD_Click({
+                $UIHash.CPURemoveCountersButton.IsEnabled = $false
+                $DataHash.X = 0
+                $DataHash.CPUChartValues | foreach {
+                    $_.Clear()
+                }
+                $ScriptsHash.CPURunspace.BeginInvoke()
+                $UIHash.CPUStartButton.IsEnabled = $false
+                $UIHash.CPUStopButton.IsEnabled = $true
+            })
+
+            $UIHash.CPUStopButton.IsEnabled = $false
+            $UIHash.CPUStopButton.ADD_Click({
+                $ScriptsHash.CPURunspace.Stop()
+                $UIHash.CPUStopButton.IsEnabled = $false
+                $UIHash.CPUStartButton.IsEnabled = $true
+                $UIHash.CPURemoveCountersButton.IsEnabled = $true
+            })
+
+            $UIHash.CPURemoveCountersButton.ADD_Click({
+                $checkedItems = $DataHash.ListViewItems | where IsChecked -eq $true
+                foreach ($item in $checkedItems){
+                    $index = $DataHash.SeriesCollectionTitles | where Title -eq $item.Name
+                    $UIHash.CPULineChart.Series[$index.Index].Title = $Null
+                    $DataHash.CPUChartValues[$index.Index].Clear()
+                    $IndexIndex = $DataHash.SeriesCollectionTitles.IndexOf($index)
+                    $DataHash.SeriesCollectionTitles[$IndexIndex].Title = $null
+                    $DataHash.ListViewItems.Remove($item)
+                }
+            })
             
             #Launch App
             $UIHash.MainWindow.ShowDialog()
         }
         catch{
-            [System.Windows.MessageBox]::Show($_.Exception.Message)
-            #Show-Messagebox -Text $_.Exception.Message
+            Show-Messagebox -Text $_.Exception.Message -Title "CPU Runspace"
         }
     }
 }
