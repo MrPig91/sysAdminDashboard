@@ -38,6 +38,20 @@ function New-UIRunspace{
             $UIHash.MemoryDefaultCounterComboBox.DisplayMemberPath = "FriendlyName"
             $UIHash.ThermalsDefaultCountersCombo = $MainWindow.FindName("defaultThermalCounterCombobox")
             $UIHash.ThermalsDefaultCountersCombo.DisplayMemberPath = "FriendlyName"
+            $ThermalsCounters = New-Object System.Collections.Generic.List[System.Object]
+            $ThermalsCounters.ADD([PSCustomObject]@{
+                Counter = "\Thermal Zone Information(*cpu*)\High Precision Temperature"
+                FriendlyName = "(cpu)\High Precision Temperature"
+            })
+            $ThermalsCounters.Add([PSCustomObject]@{
+                Counter = "\Thermal Zone Information(*)\High Precision Temperature"
+                FriendlyName = "(*)\High Precision Temperature"
+            })
+            $UIHash.ThermalsDefaultCountersCombo.ItemsSource = $ThermalsCounters
+            $UIHash.ThermalsDefaultCountersCombo.SelectedIndex = 0
+
+            $ScriptsHash.DefaultCounters | foreach {$_.BeginInvoke()}
+
 
             #Listboxes
             $UIHash.computerListbox = $MainWindow.FindName("computerListbox")
