@@ -35,7 +35,7 @@ function Show-PerformanceMonitor {
     $ScriptsHash.DefaultCounters = $DefaultCounterRunspaces
 
     #Create UI Thread
-    $UIRunspace = NEw-UIRunspace
+    $UIRunspace = New-UIRunspace
     $UIRunspace.RunspacePool = $RunspacePool
     [void]$UIRunspace.BeginInvoke()
 
@@ -48,4 +48,9 @@ function Show-PerformanceMonitor {
     $PingRunspace = New-PingRunspace
     $PingRunspace.RunspacePool = $RunspacePool
     $ScriptsHash.Ping = $PingRunspace
+
+    #Add CPU Script To RunspacePool
+    $CPURunspace = New-CPURunspace
+    $CPURunspace.RunspacePool = $RunspacePool
+    $ScriptsHash.CPURunspace = $CPURunspace
 }
