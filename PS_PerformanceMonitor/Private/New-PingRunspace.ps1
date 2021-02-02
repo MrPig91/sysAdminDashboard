@@ -11,9 +11,9 @@ function New-PingRunspace {
                 $computer.IsChecked = $false
             }
 
-            $DataHash.addedComputers.Add($Computer)
-
-            $UIHash.MainWindow.Dispatcher.Invoke([action]{$UIHash.ComputerListView.Items.Refresh()},"Send")
+            if ($DataHash.addedComputers -notcontains $Computer){
+                $DataHash.addedComputers.Add($Computer)
+            }
         } #foreach computer
     }
 }
