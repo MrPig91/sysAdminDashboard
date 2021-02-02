@@ -27,6 +27,13 @@ function Show-PerformanceMonitor {
     Get-childItem -Path $DataHash.PrivateFunctions -File | ForEach-Object {Import-Module $_.FullName}
     Get-childItem -Path $DataHash.Assemblies -File | ForEach-Object {Add-Type -Path $_.FullName}
 
+    #DefaultCounters Thread
+    $DefaultCounterRunspaces = New-GetDefaultCountersRunspace
+    $DefaultCounterRunspaces | foreach {
+        $_.RunspacePool = $RunspacePool
+    }
+    $ScriptsHash.DefaultCounters = $DefaultCounterRunspaces
+
     #Create UI Thread
     $UIRunspace = NEw-UIRunspace
     $UIRunspace.RunspacePool = $RunspacePool
