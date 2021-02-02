@@ -41,13 +41,20 @@ function New-UIRunspace{
 
             #Listboxes
             $UIHash.computerListbox = $MainWindow.FindName("computerListbox")
+            $DataHash.AllComputers = New-Object System.Collections.ObjectModel.ObservableCollection[System.Object]
+            [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($DataHash.AllComputers, [System.Object]::new())
+            $UIHash.ComputerListbox.ItemsSource = $DataHash.AllComputers
+            $UIHash.ComputerListboxSelectedItems = $UIHash.ComputerListbox.SelectedItems
             $UIHash.computerListbox.DisplayMemberPath = "ComputerName"
 
             #ListViews
             $UIHash.ComputerListView = $MainWindow.FindName("ComputerListView")
+            $DataHash.addedComputers =  New-Object System.Collections.ObjectModel.ObservableCollection[System.Object]
+            [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($DataHash.addedComputers, [System.Object]::new())
+            $UIHash.ComputerListView.ItemsSource = $DataHash.addedComputers
             $UIHash.ListgridView = $MainWindow.FindName("ListViewGrid")
-            $ListViewColumnHeaderProperties = "ComputerName","IPAddress","OperatingSystem","SerialNumber"
 
+            $ListViewColumnHeaderProperties = "ComputerName","IPAddress","OperatingSystem","SerialNumber"
             $ListViewColumnHeaderProperties | foreach {
                 $gridViewColumn = [System.Windows.Controls.GridViewColumn]::new()
                 $gridViewColumn.Header = $_
@@ -56,14 +63,42 @@ function New-UIRunspace{
                 $gridViewColumn.DisplayMemberBinding = $Binding
                 $UIHash.ListgridView.Columns.Add($gridViewColumn)
             }
-            $UIHash.ComputerListView.View = $gridView
+            $UIHash.ComputerListView.View = $UIHash.ListgridView
 
             #Checkboxes
             $UIHash.EnabledCheckBox = $MainWindow.FindName("LogCheckbox")
 
             #Slider
             $UIHash.TimeIntervalSlider = $MainWindow.FindName("timeIntervalTrack")
-    
+
+            #Button Click Events
+            $UIHash.AddComputerButton.ADD_Click({
+                $ScriptsHash.Ping.BeginInvoke()
+            })
+
+            $UIHash.SelectAllButton.ADD_Click({
+                foreach ($computer in $DataHash.addedComputers){
+                    if (-not$Computer.IsChecked){
+                        $Computer.IsChecked = $true
+                    }
+                }
+            })
+            
+            $UIHash.DeSelectAllButton.ADD_Click({
+                foreach ($computer in $DataHash.addedComputers){
+                    if ($Computer.IsChecked){
+                        $Computer.IsChecked = $false
+                    }
+                }
+            })
+
+            $UIHash.RemoveSelectedButton.ADD_Click({
+                foreach ($computer in ($DataHash.addedComputers | where {$_.IsChecked})){
+                    $DataHash.addedComputers.Remove($computer)
+                }
+            })
+            
+            #Launch App
             $UIHash.MainWindow.ShowDialog()
         }
         catch{
