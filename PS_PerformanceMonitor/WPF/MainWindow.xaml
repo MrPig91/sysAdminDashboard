@@ -230,6 +230,263 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
+            
+            <TabItem x:Name="NetworkTabPage" Header="Network">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="NetworkGraphGroupbox" Header="Network Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="NetworkliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="NetworkLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="NetworkListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" >
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="NetworkGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="NetworkStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="NetworkStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="NetworkRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="NetworklineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="NetworkLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="MemoryTabPage" Header="Memory">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="MemoryGraphGroupbox" Header="Memory Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="MemoryliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="MemoryLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="MemoryListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" >
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="MemoryGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="MemoryStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="MemoryStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="MemoryRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="MemorylineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="MemoryLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="DiskTabPage" Header="Disk">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="DiskGraphGroupbox" Header="Disk Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="DiskliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="DiskLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="DiskListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" >
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="DiskGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="DiskStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="DiskStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="DiskRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="DisklineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="DiskLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="ThermalTabPage" Header="Thermal">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="ThermalGraphGroupbox" Header="Thermal Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="ThermalliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="ThermalLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="ThermalListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" >
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="ThermalGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="ThermalStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="ThermalStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="ThermalRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="ThermallineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="ThermalLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>
