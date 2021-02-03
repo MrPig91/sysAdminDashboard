@@ -69,16 +69,13 @@ function New-CPURunspace {
     
                 $CookedValue = [Math]::Round($_.CookedValue,2)
                 $newPoint = [LiveCharts.Defaults.ObservablePoint]::new($DataHash.CPUX,$CookedValue)
-                #$CPUHash.Chart.Dispatcher.Invoke([action]{(($CPUHash.Chart.Series | where Title -eq $_.Path).Values.ADD($cookedValue))})
+
                 $index = ($DataHash.CPUSeriesCollectionTitles | where Title -eq $_.Path).Index
                 $DataHash.CPUChartValues[$index].Add($newPoint)
-    
-                #$CookedValue = [Math]::Round($_.CookedValue,2)
     
                 $Item = $DataHash.CPUListViewItems | where Name -eq $_.Path
                 $Item.Value = $CookedValue
     
-                #$CPUHash.ListView.Dispatcher.Invoke([action]{$CPUHash.ListView.Items.Refresh()})
                 if ($CPUHash.Logging.Checked){
                     if (Test-Path $CPUHash.FilePath.Text){
                         $CPULogs | Export-Counter -Path "$($CPUHash.FilePath.Text.TrimEnd("\"))\$CPUFilePrefix-CPUCounterLogs.$($CPUHash.FileFormat.SelectedItem)" -FileFormat $CPUHash.FileFormat.SelectedItem -Force
