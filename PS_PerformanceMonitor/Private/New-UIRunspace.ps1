@@ -207,7 +207,7 @@ function New-UIRunspace{
             $DataHash.CPUListViewItems = $cpuListViewItems
             $UIHash.CPUListView.ItemsSource = $DataHash.CPUListViewItems
             $UIHash.CPUListView.ADD_SelectionChanged({
-                if ($UIHash.CPUListView.SelectionIndex -ne -1){
+                if ($_.Source.SelectedIndex -ne -1){
                     $UIHash.CPUCombo.SelectedItem = $UIHash.CPUListView.SelectedItem.LineColor
                     $UIHash.CPUSlider.Value = $UIHash.CPUListView.SelectedItem.LineThickness
                 }
@@ -241,7 +241,7 @@ function New-UIRunspace{
             $DataHash.NetworkListViewItems = $NetworkListViewItems
             $UIHash.NetworkListView.ItemsSource = $DataHash.NetworkListViewItems
             $UIHash.NetworkListView.ADD_SelectionChanged({
-                if ($UIHash.NetworkListView.SelectionIndex -ne -1){
+                if ($_.Source.SelectedIndex -ne -1){
                     $UIHash.NetworkCombo.SelectedItem = $UIHash.NetworkListView.SelectedItem.LineColor
                     $UIHash.NetworkSlider.Value = $UIHash.NetworkListView.SelectedItem.LineThickness
                 }
@@ -275,7 +275,7 @@ function New-UIRunspace{
             $DataHash.MemoryListViewItems = $MemoryListViewItems
             $UIHash.MemoryListView.ItemsSource = $DataHash.MemoryListViewItems
             $UIHash.MemoryListView.ADD_SelectionChanged({
-                if ($UIHash.MemoryListView.SelectionIndex -ne -1){
+                if ($_.Source.SelectedIndex -ne -1){
                     $UIHash.MemoryCombo.SelectedItem = $UIHash.MemoryListView.SelectedItem.LineColor
                     $UIHash.MemorySlider.Value = $UIHash.MemoryListView.SelectedItem.LineThickness
                 }
@@ -309,7 +309,7 @@ function New-UIRunspace{
             $DataHash.DiskListViewItems = $DiskListViewItems
             $UIHash.DiskListView.ItemsSource = $DataHash.DiskListViewItems
             $UIHash.DiskListView.ADD_SelectionChanged({
-                if ($UIHash.DiskListView.SelectionIndex -ne -1){
+                if ($_.Source.SelectedIndex -ne -1){
                     $UIHash.DiskCombo.SelectedItem = $UIHash.DiskListView.SelectedItem.LineColor
                     $UIHash.DiskSlider.Value = $UIHash.DiskListView.SelectedItem.LineThickness
                 }
@@ -343,7 +343,7 @@ function New-UIRunspace{
             $DataHash.ThermalListViewItems = $ThermalListViewItems
             $UIHash.ThermalListView.ItemsSource = $DataHash.ThermalListViewItems
             $UIHash.ThermalListView.ADD_SelectionChanged({
-                if ($UIHash.ThermalListView.SelectionIndex -ne -1){
+                if ($_.Source.SelectedIndex -ne -1){
                     $UIHash.ThermalCombo.SelectedItem = $UIHash.ThermalListView.SelectedItem.LineColor
                     $UIHash.ThermalSlider.Value = $UIHash.ThermalListView.SelectedItem.LineThickness
                 }
@@ -519,7 +519,7 @@ function New-UIRunspace{
             #CPU
             $UIHash.CPUStartButton.ADD_Click({
                 $UIHash.CPURemoveCountersButton.IsEnabled = $false
-                $DataHash.X = 0
+                $DataHash.CPUX = 0
                 $DataHash.CPUChartValues | foreach {
                     $_.Clear()
                 }
@@ -551,7 +551,7 @@ function New-UIRunspace{
             #Network
             $UIHash.NetworkStartButton.ADD_Click({
                 $UIHash.NetworkRemoveCountersButton.IsEnabled = $false
-                $DataHash.X = 0
+                $DataHash.NetworkX = 0
                 $DataHash.NetworkChartValues | foreach {
                     $_.Clear()
                 }
@@ -582,7 +582,7 @@ function New-UIRunspace{
 
             $UIHash.MemoryStartButton.ADD_Click({
                 $UIHash.MemoryRemoveCountersButton.IsEnabled = $false
-                $DataHash.X = 0
+                $DataHash.MemoryX = 0
                 $DataHash.MemoryChartValues | foreach {
                     $_.Clear()
                 }
@@ -613,7 +613,7 @@ function New-UIRunspace{
 
             $UIHash.DiskStartButton.ADD_Click({
                 $UIHash.DiskRemoveCountersButton.IsEnabled = $false
-                $DataHash.X = 0
+                $DataHash.DiskX = 0
                 $DataHash.DiskChartValues | foreach {
                     $_.Clear()
                 }
@@ -644,7 +644,7 @@ function New-UIRunspace{
 
             $UIHash.ThermalStartButton.ADD_Click({
                 $UIHash.ThermalRemoveCountersButton.IsEnabled = $false
-                $DataHash.X = 0
+                $DataHash.ThermalX = 0
                 $DataHash.ThermalChartValues | foreach {
                     $_.Clear()
                 }
@@ -677,7 +677,7 @@ function New-UIRunspace{
             $UIHash.MainWindow.ShowDialog()
         }
         catch{
-            Show-Messagebox -Text $_.Exception.Message -Title "UI Runspace"
+            Show-Messagebox -Text "$($_.Exception.Message)`n`n$($_.InvocationInfo.PositionMessage)" -Title "UI Runspace"
         }
     }
 }
