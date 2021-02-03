@@ -22,19 +22,19 @@ function New-MemoryRunspace {
              } -Process {
                 if ($DataHash.MemorySeriesCollectionTitles.Title -notcontains $_.Path){
                     $newRandomColor = ([System.Windows.Media.Colors] | gm -Static -MemberType Properties)[(Get-Random -Minimum 0 -Maximum 141)].Name
-    
+
                     $plus1 = ($DataHash.MemorySeriesCollectionTitles | Measure).Count + 1
                     $newIndex = [PSCustomObject]@{
                         Title = $_.Path
                         Index = $plus1
                     }
-    
+                    
                     $DataHash.MemorySeriesCollectionTitles.Add($newIndex)
                     $newCounterListViewItem = $DataHash.MemoryListViewList[$plus1]
                     $newCounterListViewItem.Name = $_.Path
                     $newCounterListViewItem.Counter = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[0])
                     $newCounterListViewItem.ComputerName = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[0])
-                    $newCounterListViewItem.Instance =  ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[1].trimend(')'))
+                    $newCounterListViewItem.Instance =  $_.InstanceName
                     $newCounterListViewItem.Units = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[2])
                     $newCounterListViewItem.Value = 0
                     $newCounterListViewItem.LineColor = $newRandomColor
@@ -84,9 +84,9 @@ function New-MemoryRunspace {
             }
         }
         catch{
-            Show-Messagebox -Title "Memory Runspace" -Text "$($_.Exception.Message)" -Icon Error
-            $UIHash.MemoryStopButton.Enabled = $false
-            $UIHash.MemoryStartButton.Enabled = $true
+            Show-Messagebox -Title "Memory Runspace" -Text "$($_.Exception.Message)`n`n$($_.InvocationInfo.PositionMessage)" -Icon Error
+            $UIHash.MemoryStopButton.Dispatcher.Invoke([action]{$UIHash.MemoryStopButton.Enabled = $false})
+            $UIHash.MemoryStartButton.Dispatcher.Invoke([action]{$UIHash.MemoryStartButton.Enabled = $true})
         }
     }
 }

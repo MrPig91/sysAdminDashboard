@@ -34,7 +34,7 @@ function New-CPURunspace {
                     $newCounterListViewItem.Name = $_.Path
                     $newCounterListViewItem.Counter = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[0])
                     $newCounterListViewItem.ComputerName = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[0])
-                    $newCounterListViewItem.Instance =  ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[1].trimend(')'))
+                    $newCounterListViewItem.Instance =  $_.InstanceName
                     $newCounterListViewItem.Units = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[2])
                     $newCounterListViewItem.Value = 0
                     $newCounterListViewItem.LineColor = $newRandomColor
@@ -85,8 +85,8 @@ function New-CPURunspace {
         }
         catch{
             Show-Messagebox -Title "CPU Runspace" -Text "$($_.Exception.Message)" -Icon Error
-            $UIHash.CPUStopButton.Enabled = $false
-            $UIHash.CPUStartButton.Enabled = $true
+            $UIHash.CPUStopButton.Dispatcher.Invoke([action]{$UIHash.CPUStopButton.Enabled = $false})
+            $UIHash.CPUStartButton.Dispatcher.Invoke([action]{$UIHash.CPUStartButton.Enabled = $true})
         }
     }
 }

@@ -34,7 +34,7 @@ function New-ThermalRunspace {
                     $newCounterListViewItem.Name = $_.Path
                     $newCounterListViewItem.Counter = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[0])
                     $newCounterListViewItem.ComputerName = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[0])
-                    $newCounterListViewItem.Instance =  ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[1].trimend(')'))
+                    $newCounterListViewItem.Instance = $_.InstanceName
                     $newCounterListViewItem.Units = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[2])
                     $newCounterListViewItem.Value = 0
                     $newCounterListViewItem.LineColor = $newRandomColor
@@ -85,8 +85,8 @@ function New-ThermalRunspace {
         }
         catch{
             Show-Messagebox -Title "Thermal Runspace" -Text "$($_.Exception.Message)" -Icon Error
-            $UIHash.ThermalStopButton.Enabled = $false
-            $UIHash.ThermalStartButton.Enabled = $true
+            $UIHash.ThermalStopButton.Dispatcher.Invoke([action]{$UIHash.ThermalStopButton.Enabled = $false})
+            $UIHash.ThermalStartButton.Dispatcher.Invoke([action]{$UIHash.ThermalStartButton.Enabled = $true})
         }
     }
 }

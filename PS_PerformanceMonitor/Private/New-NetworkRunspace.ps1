@@ -34,7 +34,7 @@ function New-NetworkRunspace {
                     $newCounterListViewItem.Name = $_.Path
                     $newCounterListViewItem.Counter = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[0])
                     $newCounterListViewItem.ComputerName = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[0])
-                    $newCounterListViewItem.Instance =  ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[1].trimend(')'))
+                    $newCounterListViewItem.Instance =  $_.InstanceName
                     $newCounterListViewItem.Units = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[2])
                     $newCounterListViewItem.Value = 0
                     $newCounterListViewItem.LineColor = $newRandomColor
@@ -85,8 +85,8 @@ function New-NetworkRunspace {
         }
         catch{
             Show-Messagebox -Title "Network Runspace" -Text "$($_.Exception.Message)" -Icon Error
-            $UIHash.NetworkStopButton.Enabled = $false
-            $UIHash.NetworkStartButton.Enabled = $true
+            $UIHash.NetworkStopButton.Dispatcher.Invoke([action]{$UIHash.NetworkStopButton.Enabled = $false})
+            $UIHash.NetworkStartButton.Dispatcher.Invoke([action]{$UIHash.NetworkStartButton.Enabled = $true})
         }
     }
 }

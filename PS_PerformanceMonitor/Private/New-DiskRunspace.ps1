@@ -34,7 +34,7 @@ function New-DiskRunspace {
                     $newCounterListViewItem.Name = $_.Path
                     $newCounterListViewItem.Counter = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[0])
                     $newCounterListViewItem.ComputerName = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[0])
-                    $newCounterListViewItem.Instance =  ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[1].trimend(')'))
+                    $newCounterListViewItem.Instance =  $_.InstanceName
                     $newCounterListViewItem.Units = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[2])
                     $newCounterListViewItem.Value = 0
                     $newCounterListViewItem.LineColor = $newRandomColor
@@ -85,8 +85,8 @@ function New-DiskRunspace {
         }
         catch{
             Show-Messagebox -Title "Disk Runspace" -Text "$($_.Exception.Message)" -Icon Error
-            $UIHash.DiskStopButton.Enabled = $false
-            $UIHash.DiskStartButton.Enabled = $true
+            $UIHash.DiskStopButton.Dispatcher.Invoke([action]{$UIHash.DiskStopButton.Enabled = $false})
+            $UIHash.DiskStartButton.Dispatcher.Invoke([action]{$UIHash.DiskStartButton.Enabled = $true})
         }
     }
 }
