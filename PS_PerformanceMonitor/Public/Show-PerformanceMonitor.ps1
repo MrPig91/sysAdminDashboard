@@ -58,4 +58,19 @@ function Show-PerformanceMonitor {
     $NetworkRunspace = New-NetworkRunspace
     $NetworkRunspace.RunspacePool = $RunspacePool
     $ScriptsHash.NetworkRunspace = $NetworkRunspace
+
+    #Add Memory Script To RunspacePool
+    $MemoryRunspace = New-MemoryRunspace
+    $MemoryRunspace.RunspacePool = $RunspacePool
+    $ScriptsHash.MemoryRunspace = $MemoryRunspace
+
+    #Add Disk Script To RunspacePool
+    $DiskRunspace = New-DiskRunspace
+    $DiskRunspace.RunspacePool = $RunspacePool
+    $ScriptsHash.DiskRunspace = $DiskRunspace
+
+    #Add Thermal Script To RunspacePool
+    $ThermalRunspace = New-ThermalRunspace
+    $ThermalRunspace.RunspacePool = $RunspacePool
+    $ScriptsHash.ThermalRunspace = $ThermalRunspace
 }
