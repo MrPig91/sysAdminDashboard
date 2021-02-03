@@ -53,4 +53,9 @@ function Show-PerformanceMonitor {
     $CPURunspace = New-CPURunspace
     $CPURunspace.RunspacePool = $RunspacePool
     $ScriptsHash.CPURunspace = $CPURunspace
+
+    #Add Network Script To RunspacePool
+    $NetworkRunspace = New-NetworkRunspace
+    $NetworkRunspace.RunspacePool = $RunspacePool
+    $ScriptsHash.NetworkRunspace = $NetworkRunspace
 }
