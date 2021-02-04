@@ -7,7 +7,7 @@ function New-GetDefaultCountersRunspace {
                 Counter = "\processor(_total)\% processor time"
                 FriendlyName = "(_total)\% processor time"
             })
-            $CPUCounters.AddRange(((Get-Counter -ListSet Processor).Counter | foreach {
+            $CPUCounters.AddRange(((Get-Counter -ListSet Processor -OutVariable CPUToolTip).Counter | foreach {
                 [PSCustomObject]@{
                     Counter = $_
                     FriendlyName = $_.split('\')[2]
@@ -16,6 +16,7 @@ function New-GetDefaultCountersRunspace {
             $UIHash.CPUDefaultCounterComboBox.Dispatcher.Invoke([action]{
                 $UIHash.CPUDefaultCounterComboBox.ItemsSource = $CPUCounters
                 $UIHash.CPUDefaultCounterComboBox.SelectedIndex = 0
+                $UIHash.CPUDefaultCounterComboBox.ToolTip = $CPUToolTip.Description
             })
         }
         catch{
@@ -26,7 +27,7 @@ function New-GetDefaultCountersRunspace {
     #network counters
     [powershell]::Create().AddScript{
         Try{
-            $NetworkCounters = (Get-Counter -ListSet "Network Interface").Counter | foreach {
+            $NetworkCounters = (Get-Counter -ListSet "Network Interface" -OutVariable NetToolTip).Counter | foreach {
             [PSCustomObject]@{
                 Counter = $_
                 FriendlyName = $_.split('\')[2]
@@ -34,6 +35,7 @@ function New-GetDefaultCountersRunspace {
         }
         $UIHash.NetworkDefaultCounterComboBox.Dispatcher.Invoke([action]{$UIHash.NetworkDefaultCounterComboBox.ItemsSource = $NetworkCounters
             $UIHash.NetworkDefaultCounterComboBox.SelectedIndex = 0
+            $UIHash.NetworkDefaultCounterComboBox.ToolTip = $NetToolTip.Description
             })
         }
         catch{
@@ -44,7 +46,7 @@ function New-GetDefaultCountersRunspace {
     #memory counters
     [powershell]::Create().AddScript{
         try{
-            $MemoryCounters = (Get-Counter -ListSet Memory).Counter | foreach {
+            $MemoryCounters = (Get-Counter -ListSet Memory -OutVariable MemoryToolTip).Counter | foreach {
                 [PSCustomObject]@{
                     Counter = $_
                     FriendlyName = $_.split('\')[2]
@@ -53,6 +55,7 @@ function New-GetDefaultCountersRunspace {
             $UIHash.MemoryDefaultCounterComboBox.Dispatcher.Invoke([action]{
                 $UIHash.MemoryDefaultCounterComboBox.ItemsSource = $MemoryCounters
                 $UIHash.MemoryDefaultCounterComboBox.SelectedIndex = 26
+                $UIHash.MemoryDefaultCounterComboBox.ToolTip = $MemoryToolTip.Description
             })
         }
         catch{
@@ -63,7 +66,7 @@ function New-GetDefaultCountersRunspace {
     #disk counters
     [powershell]::Create().AddScript{
         try{
-            $DiskCounters = (Get-Counter -ListSet PhysicalDisk).Counter | foreach {
+            $DiskCounters = (Get-Counter -ListSet PhysicalDisk -OutVariable DiskToolTip).Counter | foreach {
                 [PSCustomObject]@{
                     Counter = $_
                     FriendlyName = $_.split('\')[2]
@@ -72,6 +75,7 @@ function New-GetDefaultCountersRunspace {
             $UIHash.DiskDefaultCounterComboBox.Dispatcher.Invoke([action]{
                 $UIHash.DiskDefaultCounterComboBox.ItemsSource = $DiskCounters
                 $UIHash.DiskDefaultCounterComboBox.SelectedIndex = 1
+                $UIHash.DiskDefaultCounterComboBox.ToolTip = $DiskToolTip.Description
             })
         }
         catch{
