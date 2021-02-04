@@ -24,6 +24,7 @@ function New-UIRunspace{
             $UIHash.SelectAllButton = $MainWindow.FindName("SelectAllButton")
             $UIHash.DeSelectAllButton = $MainWindow.FindName("DeSelectAllButton")
             $UIHash.RemoveSelectedButton = $MainWindow.FindName("RemoveSelectedButton")
+            $UIHash.FolderExplorerButton = $MainWindow.FindName("FolderExplorerButton")
 
             $UIHash.CPUStartButton = $MainWindow.FindName("cpuStartButton")
             $UIHash.CPUStopButton = $MainWindow.FindName("cpuStopButton")
@@ -51,6 +52,21 @@ function New-UIRunspace{
             $UIHash.FilePathBox = $MainWindow.FindName("LogPathTextbox")
             $UIHash.FilePathBox.Text = "$ENV:USERPROFILE\Downloads"
 
+            #Textbox Actions
+            $UIHash.computerSearchbox.ADD_TextChanged({
+                $DataHash.FilteredComputers.Clear()
+                if ($_.Source.Text.Length -ge 1){
+                    $DataHash.AllComputers | where ComputerName -like "$($_.Source.Text)*" | foreach {
+                        $DataHash.FilteredComputers.Add($_)
+                    }
+                }
+                else{
+                    $DataHash.AllComputers | foreach {
+                        $DataHash.FilteredComputers.Add($_)
+                    }
+                }
+            })
+
             #Comboboxes
             $UIHash.CPUDefaultCounterComboBox = $MainWindow.FindName("defaultCPUCounterCombobox")
             $UIHash.CPUDefaultCounterComboBox.DisplayMemberPath = "FriendlyName"
@@ -73,6 +89,8 @@ function New-UIRunspace{
             })
             $UIHash.ThermalsDefaultCountersCombo.ItemsSource = $ThermalsCounters
             $UIHash.ThermalsDefaultCountersCombo.SelectedIndex = 0
+            $UIHash.ThermalDefaultCounterComboBox.ToolTip = "The Thermal Zone Information performance counter set consists of counters that measure aspects of each thermal zone in
+            the system."
 
             $ScriptsHash.DefaultCounters | foreach {$_.BeginInvoke()}
 
@@ -164,7 +182,9 @@ function New-UIRunspace{
             $UIHash.computerListbox = $MainWindow.FindName("computerListbox")
             $DataHash.AllComputers = New-Object System.Collections.ObjectModel.ObservableCollection[System.Object]
             [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($DataHash.AllComputers, [System.Object]::new())
-            $UIHash.ComputerListbox.ItemsSource = $DataHash.AllComputers
+            $DataHash.FilteredComputers = New-Object System.Collections.ObjectModel.ObservableCollection[System.Object]
+            [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($DataHash.FilteredComputers, [System.Object]::new())
+            $UIHash.ComputerListbox.ItemsSource = $DataHash.FilteredComputers
             $UIHash.ComputerListboxSelectedItems = $UIHash.ComputerListbox.SelectedItems
             $UIHash.computerListbox.DisplayMemberPath = "ComputerName"
 
@@ -512,6 +532,15 @@ function New-UIRunspace{
             $UIHash.RemoveSelectedButton.ADD_Click({
                 foreach ($computer in ($DataHash.addedComputers | where {$_.IsChecked})){
                     $DataHash.addedComputers.Remove($computer)
+                }
+            })
+
+            $UIHash.FolderExplorerButton.ADD_Click({
+                $FolderDialogBox = [Ookii.Dialogs.Wpf.VistaFolderBrowserDialog]::new()
+                $FolderDialogBox.Description = "Destination folder for counter logs"
+                $FolderDialogBox.UseDescriptionForTitle = $true
+                if ($FolderDialogBox.ShowDialog()){
+                    $UIHash.FilePathBox.Text = $FolderDialogBox.SelectedPath
                 }
             })
 

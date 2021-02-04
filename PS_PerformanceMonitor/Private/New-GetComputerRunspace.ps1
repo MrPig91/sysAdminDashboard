@@ -10,6 +10,7 @@ function New-GetComputerRunspace {
             Get-ADComputer -Filter * -Properties IPv4Address,OperatingSystem,SerialNumber -ErrorAction Stop | foreach {
                 $computer = [ComputerListViewItem]::new($_.Name,$_.OperatingSystem,$_.IPv4Address,$_.SerialNumber,$true)
                 $DataHash.AllComputers.Add($computer)
+                $DataHash.FilteredComputers.Add($computer)
             }
 
             $UIHash.ComputerSearchBox.Dispatcher.Invoke([action]{$UIHash.ComputerSearchBox.IsEnabled = $true})
@@ -26,6 +27,7 @@ function New-GetComputerRunspace {
                 }
                 $Computers = [ComputerListViewItem]::new($ENV:COMPUTERNAME,$OS,$IP,$SerialNumber,$true)
                 $DataHash.AllComputers.Add($Computers)
+                $DataHash.FilteredComputers.Add($Computers)
                 $UIHash.ComputerSearchBox.Dispatcher.Invoke([action]{$UIHash.ComputerSearchBox.IsEnabled = $true})
             }
             catch{
