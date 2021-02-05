@@ -67,6 +67,9 @@ function New-UIRunspace{
                 }
             })
 
+            #Item Control
+            $UIHash.ComputerOverview = $MainWindow.FindName("ComputerOverview")
+
             #Comboboxes
             $UIHash.CPUDefaultCounterComboBox = $MainWindow.FindName("defaultCPUCounterCombobox")
             $UIHash.CPUDefaultCounterComboBox.DisplayMemberPath = "FriendlyName"
@@ -89,7 +92,7 @@ function New-UIRunspace{
             })
             $UIHash.ThermalsDefaultCountersCombo.ItemsSource = $ThermalsCounters
             $UIHash.ThermalsDefaultCountersCombo.SelectedIndex = 0
-            $UIHash.ThermalDefaultCounterComboBox.ToolTip = "The Thermal Zone Information performance counter set consists of counters that measure aspects of each thermal zone in
+            $UIHash.ThermalsDefaultCountersCombo.ToolTip = "The Thermal Zone Information performance counter set consists of counters that measure aspects of each thermal zone in
             the system."
 
             $ScriptsHash.DefaultCounters | foreach {$_.BeginInvoke()}
@@ -100,80 +103,106 @@ function New-UIRunspace{
             $UIHash.CPUCombo = $MainWindow.FindName("cpuLineColor")
             $UIHash.CPUCombo.ItemsSource = $allColors
             $UIHash.CPUCombo.ADD_SelectionChanged({
-                if ($UIHash.CPUListView.SelectionIndex -ne -1 -and $UIHash.CPUListView.SelectedItem.LineColor -ne $UIHash.CPUCombo.SelectedItem){
-                    $UIHash.CPUListView.SelectedItem.LineColor = $UIHash.CPUCombo.SelectedItem
+                if ($UIHash.CPUListView.SelectedItem -ne $null -and $UIHash.CPUListView.SelectedItem.LineColor -ne $UIHash.CPUCombo.SelectedItem){
+                    try{
+                        $UIHash.CPUListView.SelectedItem.LineColor = $UIHash.CPUCombo.SelectedItem
 
-                    $Index = ($DataHash.CPUSeriesCollectionTitles | where Title -eq $UIHash.CPUListView.SelectedItem.Name).Index
-                    $CloneStrokeColor = $UIHash.CPUChartSeries[$Index].Stroke.Clone()
-                    $CloneFillColor = $UIHash.CPUChartSeries[$Index].Fill.Clone()
-                    $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.CPUCombo.SelectedItem)
-                    $UIHash.CPUChartSeries[$Index].Fill = $CloneFillColor
-                    $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.CPUCombo.SelectedItem)
-                    $UIHash.CPUChartSeries[$Index].Stroke = $CloneStrokeColor
+                        $Index = ($DataHash.CPUSeriesCollectionTitles | where Title -eq $UIHash.CPUListView.SelectedItem.Name).Index
+                        $CloneStrokeColor = $UIHash.CPUChartSeries[$Index].Stroke.Clone()
+                        $CloneFillColor = $UIHash.CPUChartSeries[$Index].Fill.Clone()
+                        $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.CPUCombo.SelectedItem)
+                        $UIHash.CPUChartSeries[$Index].Fill = $CloneFillColor
+                        $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.CPUCombo.SelectedItem)
+                        $UIHash.CPUChartSeries[$Index].Stroke = $CloneStrokeColor
+                    }
+                    catch{
+                        Show-Messagebox -Title "Color Change Error" -Text $_.Exception.Message -Icon Error
+                    }
                 }
             })
 
             $UIHash.NetworkCombo = $MainWindow.FindName("NetworkLineColor")
             $UIHash.NetworkCombo.ItemsSource = $allColors
             $UIHash.NetworkCombo.ADD_SelectionChanged({
-                if ($UIHash.NetworkListView.SelectionIndex -ne -1 -and $UIHash.NetworkListView.SelectedItem.LineColor -ne $UIHash.NetworkCombo.SelectedItem){
-                    $UIHash.NetworkListView.SelectedItem.LineColor = $UIHash.NetworkCombo.SelectedItem
+                if ($UIHash.NetworkListView.SelectedItem -ne $null -and $UIHash.NetworkListView.SelectedItem.LineColor -ne $UIHash.NetworkCombo.SelectedItem){
+                    Try{
+                        $UIHash.NetworkListView.SelectedItem.LineColor = $UIHash.NetworkCombo.SelectedItem
 
-                    $Index = ($DataHash.NetworkSeriesCollectionTitles | where Title -eq $UIHash.NetworkListView.SelectedItem.Name).Index
-                    $CloneStrokeColor = $UIHash.NetworkChartSeries[$Index].Stroke.Clone()
-                    $CloneFillColor = $UIHash.NetworkChartSeries[$Index].Fill.Clone()
-                    $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.NetworkCombo.SelectedItem)
-                    $UIHash.NetworkChartSeries[$Index].Fill = $CloneFillColor
-                    $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.NetworkCombo.SelectedItem)
-                    $UIHash.NetworkChartSeries[$Index].Stroke = $CloneStrokeColor
+                        $Index = ($DataHash.NetworkSeriesCollectionTitles | where Title -eq $UIHash.NetworkListView.SelectedItem.Name).Index
+                        $CloneStrokeColor = $UIHash.NetworkChartSeries[$Index].Stroke.Clone()
+                        $CloneFillColor = $UIHash.NetworkChartSeries[$Index].Fill.Clone()
+                        $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.NetworkCombo.SelectedItem)
+                        $UIHash.NetworkChartSeries[$Index].Fill = $CloneFillColor
+                        $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.NetworkCombo.SelectedItem)
+                        $UIHash.NetworkChartSeries[$Index].Stroke = $CloneStrokeColor
+                    }
+                    catch{
+                        Show-Messagebox -Title "Color Change Error" -Text $_.Exception.Message -Icon Error
+                    }
                 }
             })
 
             $UIHash.MemoryCombo = $MainWindow.FindName("MemoryLineColor")
             $UIHash.MemoryCombo.ItemsSource = $allColors
             $UIHash.MemoryCombo.ADD_SelectionChanged({
-                if ($UIHash.MemoryListView.SelectionIndex -ne -1 -and $UIHash.MemoryListView.SelectedItem.LineColor -ne $UIHash.MemoryCombo.SelectedItem){
-                    $UIHash.MemoryListView.SelectedItem.LineColor = $UIHash.MemoryCombo.SelectedItem
+                if ($UIHash.MemoryListView.SelectedItem -ne $null -and $UIHash.MemoryListView.SelectedItem.LineColor -ne $UIHash.MemoryCombo.SelectedItem){
+                    try{
+                        $UIHash.MemoryListView.SelectedItem.LineColor = $UIHash.MemoryCombo.SelectedItem
 
-                    $Index = ($DataHash.MemorySeriesCollectionTitles | where Title -eq $UIHash.MemoryListView.SelectedItem.Name).Index
-                    $CloneStrokeColor = $UIHash.MemoryChartSeries[$Index].Stroke.Clone()
-                    $CloneFillColor = $UIHash.MemoryChartSeries[$Index].Fill.Clone()
-                    $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.MemoryCombo.SelectedItem)
-                    $UIHash.MemoryChartSeries[$Index].Fill = $CloneFillColor
-                    $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.MemoryCombo.SelectedItem)
-                    $UIHash.MemoryChartSeries[$Index].Stroke = $CloneStrokeColor
+                        $Index = ($DataHash.MemorySeriesCollectionTitles | where Title -eq $UIHash.MemoryListView.SelectedItem.Name).Index
+                        $CloneStrokeColor = $UIHash.MemoryChartSeries[$Index].Stroke.Clone()
+                        $CloneFillColor = $UIHash.MemoryChartSeries[$Index].Fill.Clone()
+                        $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.MemoryCombo.SelectedItem)
+                        $UIHash.MemoryChartSeries[$Index].Fill = $CloneFillColor
+                        $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.MemoryCombo.SelectedItem)
+                        $UIHash.MemoryChartSeries[$Index].Stroke = $CloneStrokeColor
+                    }
+                    catch{
+                        Show-Messagebox -Title "Color Change Error" -Text $_.Exception.Message -Icon Error
+
+                    }
                 }
             })
 
             $UIHash.DiskCombo = $MainWindow.FindName("DiskLineColor")
             $UIHash.DiskCombo.ItemsSource = $allColors
             $UIHash.DiskCombo.ADD_SelectionChanged({
-                if ($UIHash.DiskListView.SelectionIndex -ne -1 -and $UIHash.DiskListView.SelectedItem.LineColor -ne $UIHash.DiskCombo.SelectedItem){
-                    $UIHash.DiskListView.SelectedItem.LineColor = $UIHash.DiskCombo.SelectedItem
+                if ($UIHash.DiskListView.SelectedItem -ne $null -and $UIHash.DiskListView.SelectedItem.LineColor -ne $UIHash.DiskCombo.SelectedItem){
+                    try{
+                        $UIHash.DiskListView.SelectedItem.LineColor = $UIHash.DiskCombo.SelectedItem
 
-                    $Index = ($DataHash.DiskSeriesCollectionTitles | where Title -eq $UIHash.DiskListView.SelectedItem.Name).Index
-                    $CloneStrokeColor = $UIHash.DiskChartSeries[$Index].Stroke.Clone()
-                    $CloneFillColor = $UIHash.DiskChartSeries[$Index].Fill.Clone()
-                    $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.DiskCombo.SelectedItem)
-                    $UIHash.DiskChartSeries[$Index].Fill = $CloneFillColor
-                    $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.DiskCombo.SelectedItem)
-                    $UIHash.DiskChartSeries[$Index].Stroke = $CloneStrokeColor
+                        $Index = ($DataHash.DiskSeriesCollectionTitles | where Title -eq $UIHash.DiskListView.SelectedItem.Name).Index
+                        $CloneStrokeColor = $UIHash.DiskChartSeries[$Index].Stroke.Clone()
+                        $CloneFillColor = $UIHash.DiskChartSeries[$Index].Fill.Clone()
+                        $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.DiskCombo.SelectedItem)
+                        $UIHash.DiskChartSeries[$Index].Fill = $CloneFillColor
+                        $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.DiskCombo.SelectedItem)
+                        $UIHash.DiskChartSeries[$Index].Stroke = $CloneStrokeColor
+                    }
+                    catch{
+                        Show-Messagebox -Title "Color Change Error" -Text $_.Exception.Message -Icon Error
+                    }
                 }
             })
 
             $UIHash.ThermalCombo = $MainWindow.FindName("ThermalLineColor")
             $UIHash.ThermalCombo.ItemsSource = $allColors
             $UIHash.ThermalCombo.ADD_SelectionChanged({
-                if ($UIHash.ThermalListView.SelectionIndex -ne -1 -and $UIHash.ThermalListView.SelectedItem.LineColor -ne $UIHash.ThermalCombo.SelectedItem){
-                    $UIHash.ThermalListView.SelectedItem.LineColor = $UIHash.ThermalCombo.SelectedItem
+                if ($UIHash.ThermalListView.SelectedItem -ne $null -and $UIHash.ThermalListView.SelectedItem.LineColor -ne $UIHash.ThermalCombo.SelectedItem){
+                    try{
+                        $UIHash.ThermalListView.SelectedItem.LineColor = $UIHash.ThermalCombo.SelectedItem
 
-                    $Index = ($DataHash.ThermalSeriesCollectionTitles | where Title -eq $UIHash.ThermalListView.SelectedItem.Name).Index
-                    $CloneStrokeColor = $UIHash.ThermalChartSeries[$Index].Stroke.Clone()
-                    $CloneFillColor = $UIHash.ThermalChartSeries[$Index].Fill.Clone()
-                    $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.ThermalCombo.SelectedItem)
-                    $UIHash.ThermalChartSeries[$Index].Fill = $CloneFillColor
-                    $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.ThermalCombo.SelectedItem)
-                    $UIHash.ThermalChartSeries[$Index].Stroke = $CloneStrokeColor
+                        $Index = ($DataHash.ThermalSeriesCollectionTitles | where Title -eq $UIHash.ThermalListView.SelectedItem.Name).Index
+                        $CloneStrokeColor = $UIHash.ThermalChartSeries[$Index].Stroke.Clone()
+                        $CloneFillColor = $UIHash.ThermalChartSeries[$Index].Fill.Clone()
+                        $CloneFillColor.Color = [System.Windows.Media.Colors]::($UIHash.ThermalCombo.SelectedItem)
+                        $UIHash.ThermalChartSeries[$Index].Fill = $CloneFillColor
+                        $CloneStrokeColor.Color = [System.Windows.Media.Colors]::($UIHash.ThermalCombo.SelectedItem)
+                        $UIHash.ThermalChartSeries[$Index].Stroke = $CloneStrokeColor
+                    }
+                    catch{
+                        Show-Messagebox -Title "Color Change Error" -Text $_.Exception.Message -Icon Error
+                    }
                 }
             })
 
