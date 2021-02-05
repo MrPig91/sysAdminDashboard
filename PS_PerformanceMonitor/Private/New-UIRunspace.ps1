@@ -380,7 +380,11 @@ function New-UIRunspace{
             $UIHash.EnabledCheckBox = $MainWindow.FindName("LogCheckbox")
 
             #Slider
-            $UIHash.TimeIntervalSlider = $MainWindow.FindName("timeIntervalTrack")
+            $UIHash.CPUTimeTimeSlider = $MainWindow.FindName("CPUTimeSlider")
+            $UIHash.NetworkTimeSlider = $MainWindow.FindName("NetworkTimeSlider")
+            $UIHash.MemoryTimeSlider = $MainWindow.FindName("MemoryTimeSlider")
+            $UIHash.DiskTimeSlider = $MainWindow.FindName("DiskTimeSlider")
+            $UIHash.ThermalTimeSlider = $MainWindow.FindName("ThermalTimeSlider")
 
             $UIHash.CPUSlider = $MainWindow.FindName("cpulineThickness")
             $UIHash.CPUSlider.Add_ValueChanged({

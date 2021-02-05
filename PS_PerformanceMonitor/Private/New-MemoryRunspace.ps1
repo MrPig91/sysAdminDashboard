@@ -12,7 +12,7 @@ function New-MemoryRunspace {
             $UIHash.MemoryDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.MemoryCounter = $UIHash.MemoryDefaultCounterComboBox.SelectedItem.Counter})
 
             $computers = $DataHash.addedComputers | where IsChecked -eq $true
-            $UIHash.TimeIntervalSlider.Dispatcher.Invoke([action]{$DataHash.MemoryIntervalX = $UIHash.TimeIntervalSlider.Value})
+            $UIHash.MemoryTimeSlider.Dispatcher.Invoke([action]{$DataHash.MemoryIntervalX = $UIHash.MemoryTimeSlider.Value})
             $DataHash.MemoryX -= $DataHash.MemoryIntervalX
     
             Get-Counter -Counter $DataHash.MemoryCounter -Continuous -ComputerName $computers.ComputerName -SampleInterval $DataHash.MemoryIntervalX -ErrorAction Stop -ErrorVariable ErrVar -OutVariable MemoryLogs |

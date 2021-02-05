@@ -12,7 +12,7 @@ function New-CPURunspace {
             $UIHash.CPUDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.CPUCounter = $UIHash.CPUDefaultCounterComboBox.SelectedItem.Counter})
 
             $computers = $DataHash.addedComputers | where IsChecked -eq $true
-            $UIHash.TimeIntervalSlider.Dispatcher.Invoke([action]{$DataHash.CPUIntervalX = $UIHash.TimeIntervalSlider.Value})
+            $UIHash.CPUTimeTimeSlider.Dispatcher.Invoke([action]{$DataHash.CPUIntervalX = $UIHash.CPUTimeTimeSlider.Value})
             $DataHash.CPUX -= $DataHash.CPUIntervalX
     
             Get-Counter -Counter $DataHash.CPUCounter -Continuous -ComputerName $computers.ComputerName -SampleInterval $DataHash.CPUIntervalX -ErrorAction Stop -ErrorVariable ErrVar -OutVariable CPULogs |

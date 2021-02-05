@@ -12,7 +12,7 @@ function New-NetworkRunspace {
             $UIHash.NetworkDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.NetworkCounter = $UIHash.NetworkDefaultCounterComboBox.SelectedItem.Counter})
 
             $computers = $DataHash.addedComputers | where IsChecked -eq $true
-            $UIHash.TimeIntervalSlider.Dispatcher.Invoke([action]{$DataHash.NetworkIntervalX = $UIHash.TimeIntervalSlider.Value})
+            $UIHash.NetworkTimeSlider.Dispatcher.Invoke([action]{$DataHash.NetworkIntervalX = $UIHash.NetworkTimeSlider.Value})
             $DataHash.NetworkX -= $DataHash.NetworkIntervalX
     
             Get-Counter -Counter $DataHash.NetworkCounter -Continuous -ComputerName $computers.ComputerName -SampleInterval $DataHash.NetworkIntervalX -ErrorAction Stop -ErrorVariable ErrVar -OutVariable NetworkLogs |

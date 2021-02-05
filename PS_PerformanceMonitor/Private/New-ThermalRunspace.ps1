@@ -12,7 +12,7 @@ function New-ThermalRunspace {
             $UIHash.ThermalDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.ThermalCounter = $UIHash.ThermalDefaultCounterComboBox.SelectedItem.Counter})
 
             $computers = $DataHash.addedComputers | where IsChecked -eq $true
-            $UIHash.TimeIntervalSlider.Dispatcher.Invoke([action]{$DataHash.ThermalIntervalX = $UIHash.TimeIntervalSlider.Value})
+            $UIHash.ThermalTimeSlider.Dispatcher.Invoke([action]{$DataHash.ThermalIntervalX = $UIHash.ThermalTimeSlider.Value})
             $DataHash.ThermalX -= $DataHash.ThermalIntervalX
     
             Get-Counter -Counter $DataHash.ThermalCounter -Continuous -ComputerName $computers.ComputerName -SampleInterval $DataHash.ThermalIntervalX -ErrorAction Stop -ErrorVariable ErrVar -OutVariable ThermalLogs |

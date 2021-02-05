@@ -12,7 +12,7 @@ function New-DiskRunspace {
             $UIHash.DiskDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.DiskCounter = $UIHash.DiskDefaultCounterComboBox.SelectedItem.Counter})
 
             $computers = $DataHash.addedComputers | where IsChecked -eq $true
-            $UIHash.TimeIntervalSlider.Dispatcher.Invoke([action]{$DataHash.DiskIntervalX = $UIHash.TimeIntervalSlider.Value})
+            $UIHash.DiskTimeSlider.Dispatcher.Invoke([action]{$DataHash.DiskIntervalX = $UIHash.DiskTimeSlider.Value})
             $DataHash.DiskX -= $DataHash.DiskIntervalX
     
             Get-Counter -Counter $DataHash.DiskCounter -Continuous -ComputerName $computers.ComputerName -SampleInterval $DataHash.DiskIntervalX -ErrorAction Stop -ErrorVariable ErrVar -OutVariable DiskLogs |
