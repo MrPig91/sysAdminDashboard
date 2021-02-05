@@ -1,10 +1,10 @@
-﻿<Window
+﻿<Window 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        xmlns:local="clr-namespace:Performance_Monitor2"
+        xmlns:local="clr-namespace:Performance_Monitor"
         Title="MainWindow" Height="550" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -104,7 +104,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="5" />
                     </Grid.RowDefinitions>
@@ -130,6 +130,21 @@
                     </GroupBox>
 
                     <GroupBox x:Name="ComputerInfo" Header="Computer Information" Margin="5" Grid.Column="2" Grid.Row="1">
+                        <ItemsControl x:Name="ComputerOverview" Margin="2">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="CadetBlue" BorderThickness="2" CornerRadius="2">
+                                        <StackPanel Orientation="Vertical" Margin="5">
+                                            <TextBlock Text="{Binding Path=ComputerName}" FontSize="20" FontWeight="Bold" TextAlignment="Center"></TextBlock>
+                                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </GroupBox>
+
+                    <GroupBox x:Name="addedComputersGroupbox" Header="Added Computers" Margin="5" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -169,36 +184,6 @@
                             <Button x:Name="SelectAllButton" Content="Select All" Margin="5" Grid.Column="1" Grid.Row="2" />
                             <Button x:Name="DeSelectAllButton" Content="Deselect All" Margin="5" Grid.Column="2" Grid.Row="2" />
                             <Button x:Name="RemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="2" />
-                        </Grid>
-                    </GroupBox>
-
-                    <GroupBox x:Name="DefaultCountersGroupBox" Header="Default Counters and Interval Time" Margin="5" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="5" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="5" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="5" />
-                            </Grid.RowDefinitions>
-                            
-                            <Label Content="Disk" Grid.Column="3" Grid.Row="1" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultDiskCounterCombobox" Grid.Column="3" Grid.Row="2" Margin="5"></ComboBox>
-                            <Label Content="Memory" Grid.Column="1" Grid.Row="3" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultMemoryCounterCombobox" Grid.Column="1" Grid.Row="4" Margin="5"></ComboBox>
-                            <Label Content="Thermals" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultThermalCounterCombobox" Grid.Column="2" Grid.Row="4" Margin="5"></ComboBox>
-
-                            <Label Content="{Binding ElementName=timeIntervalTrack, Path=Value}" ContentStringFormat="Time Interval - {0} second(s)"  Grid.Column="3" Grid.Row="3" HorizontalContentAlignment="Center"/>
-                            <Slider x:Name="timeIntervalTrack" Grid.Column="3" Value="2" Grid.Row="4" Margin="5" TickPlacement="BottomRight" Maximum="10" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated"/>
                         </Grid>
                     </GroupBox>
                     <GroupBox x:Name="Logging" Header="Export Logs" Margin="5" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
@@ -288,7 +273,7 @@
                             <ComboBox x:Name="cpuLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
 
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
-                            
+
                             <ComboBox x:Name="defaultCPUCounterCombobox" Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" Margin="5" ToolTip=""></ComboBox>
                             <Slider x:Name="CPUTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
                             <Label Content="{Binding ElementName=CPUTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
@@ -382,7 +367,7 @@
                         <RowDefinition Height="5" />
                     </Grid.RowDefinitions>
 
-                    <GroupBox x:Name="MemoryGraphGroupbox" Header="Memory Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                    <GroupBox x:Name="MemoryGraphGroupbox" Header="Memory Utilization" Margin="5,5,0,5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -397,6 +382,8 @@
                                 <RowDefinition Height="5" />
                                 <RowDefinition Height="2*" />
                                 <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
                                 <RowDefinition Height="auto" />
                                 <RowDefinition Height="5" />
                             </Grid.RowDefinitions>
@@ -429,6 +416,12 @@
                             <Button x:Name="MemoryRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
                             <Slider x:Name="MemorylineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
                             <ComboBox x:Name="MemoryLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+                            <ComboBox x:Name="defaultMemoryCounterCombobox" Grid.Column="1" Grid.Row="5" Margin="5" Grid.ColumnSpan="2"></ComboBox>
+                            <Label Content="{Binding ElementName=MemoryTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="MemoryTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+
                         </Grid>
                     </GroupBox>
                 </Grid>
@@ -462,6 +455,8 @@
                                 <RowDefinition Height="2*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
                                 <RowDefinition Height="5" />
                             </Grid.RowDefinitions>
                             <Grid x:Name="DiskliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
@@ -493,6 +488,12 @@
                             <Button x:Name="DiskRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
                             <Slider x:Name="DisklineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
                             <ComboBox x:Name="DiskLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+                            <ComboBox x:Name="defaultDiskCounterCombobox" Grid.Column="1" Grid.Row="5" Margin="5" Grid.ColumnSpan="2"></ComboBox>
+                            <Label Content="{Binding ElementName=DiskTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="DiskTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+                            
                         </Grid>
                     </GroupBox>
                 </Grid>
@@ -526,6 +527,8 @@
                                 <RowDefinition Height="2*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
                                 <RowDefinition Height="5" />
                             </Grid.RowDefinitions>
                             <Grid x:Name="ThermalliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
@@ -557,6 +560,12 @@
                             <Button x:Name="ThermalRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
                             <Slider x:Name="ThermallineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
                             <ComboBox x:Name="ThermalLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+                            <ComboBox x:Name="defaultThermalCounterCombobox" Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" Margin="5"></ComboBox>
+                            <Label Content="{Binding ElementName=ThermalTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="ThermalTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+
                         </Grid>
                     </GroupBox>
                 </Grid>
