@@ -10,10 +10,8 @@ function New-PingRunspace {
                 $computer.Online = $false
                 $computer.IsChecked = $false
             }
-
-            if ($DataHash.addedComputers -notcontains $Computer){
-                $DataHash.addedComputers.Add($Computer)
-            }
+            $UIHash.ComputerOverview.Dispatcher.Invoke([action]{$UIHash.ComputerOverview.Items.Add($computer)})
+            $UIHash.AddComputerButton.Dispatcher.Invoke([action]{$UIHash.AddComputerButton.IsEnabled = $true})
         } #foreach computer
     }
 }

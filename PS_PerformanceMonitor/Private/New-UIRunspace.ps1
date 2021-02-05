@@ -216,6 +216,17 @@ function New-UIRunspace{
             $UIHash.ComputerListbox.ItemsSource = $DataHash.FilteredComputers
             $UIHash.ComputerListboxSelectedItems = $UIHash.ComputerListbox.SelectedItems
             $UIHash.computerListbox.DisplayMemberPath = "ComputerName"
+            $UIHash.computerListbox.ADD_SelectionChanged({
+                if ($UIHash.computerListbox.SelectedItem -ne $null){
+                    try{
+                        $UIHash.AddComputerButton.IsEnabled = $false
+                        $ScriptsHash.Ping.BeginInvoke()
+                    }
+                    catch{
+                        Show-Messagebox -Text $_.Exception.Message -Icon Error -Title "List Box Selection Change Event"
+                    }
+                }
+            })
 
             #ListViews
             $UIHash.ComputerListView = $MainWindow.FindName("ComputerListView")
@@ -543,7 +554,9 @@ function New-UIRunspace{
 
             #Button Click Events
             $UIHash.AddComputerButton.ADD_Click({
-                $ScriptsHash.Ping.BeginInvoke()
+                if ($DataHash.addedComputers -notcontains $Computer){
+                    $DataHash.addedComputers.Add($UIHash.ComputerListbox.SelectedItem)
+                }
             })
 
             $UIHash.SelectAllButton.ADD_Click({
