@@ -23,6 +23,8 @@ function Show-PerformanceMonitor {
     $DataHash.WPF = Join-Path -Path $DataHash.ModuleRoot -ChildPath "WPF"
     $DataHash.Classes = Join-Path -Path $DataHash.ModuleRoot -ChildPath "Classes"
 
+    $ScriptsHash.RunspacePool = $RunspacePool
+
     #Import required assemblies and private functions
     Get-childItem -Path $DataHash.PrivateFunctions -File | ForEach-Object {Import-Module $_.FullName}
     Get-childItem -Path $DataHash.Assemblies -File | ForEach-Object {Add-Type -Path $_.FullName}
@@ -43,11 +45,6 @@ function Show-PerformanceMonitor {
     $GetComputersRunspace = New-GetComputerRunspace
     $GetComputersRunspace.RunspacePool = $RunspacePool
     [void]$GetComputersRunspace.BeginInvoke()
-
-    #Add Ping Script To RunspacePool
-    $PingRunspace = New-PingRunspace
-    $PingRunspace.RunspacePool = $RunspacePool
-    $ScriptsHash.Ping = $PingRunspace
 
     #Add CPU Script To RunspacePool
     $CPURunspace = New-CPURunspace
