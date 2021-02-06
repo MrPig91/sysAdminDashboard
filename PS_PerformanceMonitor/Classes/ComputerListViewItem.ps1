@@ -42,12 +42,31 @@ public class ComputerListViewItem : INotifyPropertyChanged
         private bool _ischecked;
         private DiskInfo _diskinfo;
         private ObservableCollection<System.Object> _loggedinuser;
+        private string _onoroff;
+        private bool _online;
 
         public string ComputerName { get; set; }
         public string IPAddress { get; set; }
         public string SerialNumber { get; set; }
         public string OperatingSystem { get; set; }
-        public bool Online { get; set; }
+        public bool Online
+        {
+            get {return _online;}
+            set
+            {
+                _online = value;
+                NotifyPropertyChanged("Online");
+            }
+        }
+        public string OnOrOff
+        {
+            get {return _onoroff;}
+            set
+            {
+                _onoroff = value;
+                NotifyPropertyChanged("OnOrOff");
+            }
+        }
         public ObservableCollection<System.Object> LoggedInUser
         {
             get {return _loggedinuser;}
@@ -96,6 +115,7 @@ public class ComputerListViewItem : INotifyPropertyChanged
             IsChecked = ischecked;
             diskInfo = new DiskInfo(0, 0);
             LoggedInUser = new ObservableCollection<System.Object>();
+            OnOrOff = "Offline";
         }
     }
 '@ -ReferencedAssemblies (Get-childItem -Path $DataHash.Assemblies -File | ForEach-Object {$_.FullName})
