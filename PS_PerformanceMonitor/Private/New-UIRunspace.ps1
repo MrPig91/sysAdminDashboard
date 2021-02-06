@@ -219,8 +219,11 @@ function New-UIRunspace{
             $UIHash.computerListbox.ADD_SelectionChanged({
                 if ($UIHash.computerListbox.SelectedItem -ne $null){
                     try{
-                        $UIHash.AddComputerButton.IsEnabled = $false
-                        $ScriptsHash.Ping.BeginInvoke()
+                        $UIHash.ComputerOverview.Items.Clear()
+                        $Ping = New-PingRunspace
+                        $Ping.Runspacepool = $ScriptsHash.RunspacePool
+                        $Ping.BeginInvoke()
+                        $UIHash.ComputerOverview.Items.Add($UIHash.ComputerListbox.SelectedItem)
                     }
                     catch{
                         Show-Messagebox -Text $_.Exception.Message -Icon Error -Title "List Box Selection Change Event"
@@ -554,7 +557,7 @@ function New-UIRunspace{
 
             #Button Click Events
             $UIHash.AddComputerButton.ADD_Click({
-                if ($DataHash.addedComputers -notcontains $Computer){
+                if ($DataHash.addedComputers -notcontains $UIHash.ComputerListbox.SelectedItem){
                     $DataHash.addedComputers.Add($UIHash.ComputerListbox.SelectedItem)
                 }
             })
