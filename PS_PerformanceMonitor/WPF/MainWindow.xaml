@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:Performance_Monitor"
-        Title="MainWindow" Height="550" Width="800">
+        Title="MainWindow" Height="600" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="FirstCell">
@@ -138,6 +138,88 @@
                                             <StackPanel Orientation="Vertical" Margin="5">
                                                 <TextBlock Text="{Binding Path=ComputerName}" FontSize="20" FontWeight="Bold" TextAlignment="Center"></TextBlock>
                                                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                                                <GroupBox Header="Active Directory Info">
+                                                    <WrapPanel Orientation="Horizontal">
+                                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                                            <Label Content="IPAddress: " FontWeight="Bold" ></Label>
+                                                            <TextBlock Text="{Binding Path=IPAddress}" VerticalAlignment="Center"></TextBlock>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                                            <Label Content="Serial Number: " FontWeight="Bold" ></Label>
+                                                            <TextBlock Text="{Binding Path=SerialNumber}" VerticalAlignment="Center"></TextBlock>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                                            <Label Content="OS: " FontWeight="Black" ToolTip="Operating System" />
+                                                            <TextBlock Text="{Binding Path=OperatingSystem}" VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </WrapPanel>
+                                                </GroupBox>
+                                                <GroupBox Header="Disk Info">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="auto" />
+                                                        </Grid.ColumnDefinitions>
+
+
+                                                        <WrapPanel Orientation="Horizontal" Margin=".5" Grid.Column="0">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Label Content="Total Size: " FontWeight="Bold"/>
+                                                                <TextBlock Text="{Binding Path=diskInfo.TotalSize}" VerticalAlignment="Center" ToolTip="Gigabytes (GB)"/>
+                                                            </StackPanel>
+                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                <Label Content="Percent Free: " FontWeight="Bold" />
+                                                                <TextBlock Text="{Binding Path=diskInfo.PercentFree, StringFormat={}{0}%}" VerticalAlignment="Center" />
+                                                            </StackPanel>
+                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                <Label Content="Free Space: " FontWeight="Bold" Foreground="ForestGreen" />
+                                                                <TextBlock Text="{Binding Path=diskInfo.FreeSpace}" VerticalAlignment="Center" ToolTip="Gigabytes (GB)"/>
+                                                            </StackPanel>
+                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                <Label Content="Used Space: " Foreground="Crimson" FontWeight="Bold" />
+                                                                <TextBlock Text="{Binding Path=diskInfo.UsedSpace}" VerticalAlignment="Center" ToolTip="Gigabytes (GB)" />
+                                                            </StackPanel>
+                                                        </WrapPanel>
+                                                        <lvc:PieChart Name="DiskInfo" HorizontalAlignment="Center"  Grid.Column="1" Margin=".5" Visibility="{Binding Path.diskInfo.HasData, Converter={StaticResource BooleanToVisibilityConverter}}" MinHeight="125" MinWidth="125">
+                                                            <lvc:PieChart.Series>
+                                                                <lvc:PieSeries  Title="Used Space" Values="{Binding Path=diskInfo.UsedSpaceValues}" Fill="Crimson" VerticalAlignment="Center" DataLabels="True"/>
+                                                                <lvc:PieSeries Title="Free Space" Values="{Binding Path=diskInfo.FreeSpaceValues}" Fill="ForestGreen" DataLabels="True" VerticalAlignment="Center"/>
+                                                            </lvc:PieChart.Series>
+                                                        </lvc:PieChart>
+                                                    </Grid>
+                                                </GroupBox>
+                                                <GroupBox Header="Logged In Users" Margin="2" MaxHeight="200">
+                                                    <ListBox ItemsSource="{Binding Path=LoggedInUser}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                                        <ListBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border BorderBrush="SlateBlue" BorderThickness="1" HorizontalAlignment="Stretch">
+                                                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                                                        <TextBlock Text="{Binding Path=UserName}" HorizontalAlignment="Center" FontSize="15" FontWeight="Bold" />
+                                                                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                                                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                <Label Content="Session Id: " FontWeight="Bold" />
+                                                                                <TextBlock Text="{Binding Path=SessionId}" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                <Label Content="Session Type: " FontWeight="Bold" />
+                                                                                <TextBlock Text="{Binding Path=SessionType}" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                <Label Content="Session Name: " FontWeight="Bold" />
+                                                                                <TextBlock Text="{Binding Path=SessionName}" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                            <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                <Label Content="State: " FontWeight="Bold" />
+                                                                                <TextBlock Text="{Binding Path=State}" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                        </WrapPanel>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ListBox.ItemTemplate>
+                                                    </ListBox>
+                                                </GroupBox>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -495,7 +577,7 @@
                             <ComboBox x:Name="defaultDiskCounterCombobox" Grid.Column="1" Grid.Row="5" Margin="5" Grid.ColumnSpan="2"></ComboBox>
                             <Label Content="{Binding ElementName=DiskTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                             <Slider x:Name="DiskTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
-                            
+
                         </Grid>
                     </GroupBox>
                 </Grid>
