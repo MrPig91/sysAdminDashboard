@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        xmlns:local="clr-namespace:Performance_Monitor"
+        xmlns:local="clr-namespace:Performance_Monitor2"
         Title="MainWindow" Height="600" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -14,6 +14,16 @@
                     RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}}"/>
             </StackPanel>
         </DataTemplate>
+        <Style x:Key="OnOrOff" TargetType="{x:Type TextBlock}">
+            <Style.Triggers>
+                <Trigger Property="Text" Value="Online">
+                    <Setter Property="Foreground" Value="ForestGreen" />
+                </Trigger>
+                <Trigger Property="Text" Value="Offline">
+                    <Setter Property="Foreground" Value="Crimson" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="ToolTip">
             <Style.Resources>
                 <Style TargetType="ContentPresenter">
@@ -83,7 +93,8 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="163*" />
+            <ColumnDefinition Width="228*"/>
             <ColumnDefinition Width="5" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -92,24 +103,26 @@
             <RowDefinition Height="5" />
         </Grid.RowDefinitions>
 
-        <TabControl x:Name="MainTabControl" Grid.Column="1" Grid.Row="1" Height="auto" Width="auto">
+        <TabControl x:Name="MainTabControl" Grid.Column="1" Grid.Row="1" Height="auto" Width="auto" Grid.ColumnSpan="2">
             <TabItem x:Name="SetupTab" Header="Setup" Height="auto" Width="auto">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" MaxWidth="200" />
                         <ColumnDefinition Width="2.5*" />
                         <ColumnDefinition Width="5" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5" />
                         <RowDefinition Height="1.5*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition x:Name="rowSeparator" Height="*" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="5" />
                     </Grid.RowDefinitions>
 
-                    <GroupBox x:Name="ComputerSearchGroupbox" Header="Computer Search" Margin="5" Grid.Column="1" Grid.Row="1">
+                    <GroupBox x:Name="ComputerSearchGroupbox" Header="Computer Search" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -129,39 +142,60 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox x:Name="ComputerInfo" Header="Computer Information" Margin="5" Grid.Column="2" Grid.Row="1">
+                    <GroupBox x:Name="ComputerInfo" Header="Computer Information" Margin="5" Grid.Column="3" Grid.Row="1">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <ItemsControl x:Name="ComputerOverview" Margin="2" ScrollViewer.CanContentScroll="True">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="CadetBlue" BorderThickness="2" CornerRadius="2">
+                                    <DataTemplate x:Name="ItemDataTemplate">
+                                        <Border x:Name="itemBorder" BorderThickness="2" CornerRadius="2">
+                                            <Border.Style>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=OnOrOff}" Value="Online">
+                                                            <Setter Property="BorderBrush" Value="ForestGreen" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Path=OnOrOff}" Value="Offline">
+                                                            <Setter Property="BorderBrush" Value="Crimson" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
                                             <StackPanel Orientation="Vertical" Margin="5">
-                                                <TextBlock Text="{Binding Path=ComputerName}" FontSize="20" FontWeight="Bold" TextAlignment="Center"></TextBlock>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding Path=ComputerName, StringFormat={}{0}}" FontSize="20" FontWeight="Bold"></TextBlock>
+                                                    <TextBlock Text=" - " FontSize="20" FontWeight="Bold"></TextBlock>
+                                                    <TextBlock Text="{Binding Path=OnOrOff, StringFormat={}{0}}" FontSize="20" FontWeight="Bold" Style="{StaticResource OnOrOff}" />
+                                                </StackPanel>
                                                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                                                <GroupBox Header="Active Directory Info">
-                                                    <WrapPanel Orientation="Horizontal">
-                                                        <StackPanel Orientation="Horizontal" Margin="2">
-                                                            <Label Content="IPAddress: " FontWeight="Bold" ></Label>
-                                                            <TextBlock Text="{Binding Path=IPAddress}" VerticalAlignment="Center"></TextBlock>
-                                                        </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Margin="2">
-                                                            <Label Content="Serial Number: " FontWeight="Bold" ></Label>
-                                                            <TextBlock Text="{Binding Path=SerialNumber}" VerticalAlignment="Center"></TextBlock>
-                                                        </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Margin="2">
-                                                            <Label Content="OS: " FontWeight="Black" ToolTip="Operating System" />
-                                                            <TextBlock Text="{Binding Path=OperatingSystem}" VerticalAlignment="Center" />
-                                                        </StackPanel>
-                                                    </WrapPanel>
+                                                <GroupBox x:Name="ADGroupBox" Header="Active Directory Info">
+                                                    <Button x:Name="ADButton" BorderBrush="AliceBlue" Background="Transparent" BorderThickness="0">
+                                                        <Button.Content>
+                                                            <Grid>
+                                                                <WrapPanel x:Name="ADWrapPanel" Orientation="Horizontal">
+                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                        <Label Content="IPAddress: " FontWeight="Bold" ></Label>
+                                                                        <TextBlock Text="{Binding Path=IPAddress}" VerticalAlignment="Center"></TextBlock>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                        <Label Content="Serial Number: " FontWeight="Bold" ></Label>
+                                                                        <TextBlock Text="{Binding Path=SerialNumber}" VerticalAlignment="Center"></TextBlock>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                        <Label Content="OS: " FontWeight="Black" ToolTip="Operating System" />
+                                                                        <TextBlock Text="{Binding Path=OperatingSystem}" VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </WrapPanel>
+                                                            </Grid>
+                                                        </Button.Content>
+                                                    </Button>
                                                 </GroupBox>
-                                                <GroupBox Header="Disk Info">
+                                                <GroupBox Header="Disk Info" Visibility="{Binding Path=Online, Converter={StaticResource BooleanToVisibilityConverter}}">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*" />
                                                             <ColumnDefinition Width="auto" />
                                                         </Grid.ColumnDefinitions>
-
-
+                                                        
                                                         <WrapPanel Orientation="Horizontal" Margin=".5" Grid.Column="0">
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Label Content="Total Size: " FontWeight="Bold"/>
@@ -188,37 +222,49 @@
                                                         </lvc:PieChart>
                                                     </Grid>
                                                 </GroupBox>
-                                                <GroupBox Header="Logged In Users" Margin="2" MaxHeight="200">
-                                                    <ListBox ItemsSource="{Binding Path=LoggedInUser}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                                        <ListBox.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Border BorderBrush="SlateBlue" BorderThickness="1" HorizontalAlignment="Stretch">
-                                                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                                                                        <TextBlock Text="{Binding Path=UserName}" HorizontalAlignment="Center" FontSize="15" FontWeight="Bold" />
-                                                                        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                                                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                                            <StackPanel Orientation="Horizontal" Margin="2">
-                                                                                <Label Content="Session Id: " FontWeight="Bold" />
-                                                                                <TextBlock Text="{Binding Path=SessionId}" VerticalAlignment="Center"/>
-                                                                            </StackPanel>
-                                                                            <StackPanel Orientation="Horizontal" Margin="2">
-                                                                                <Label Content="Session Type: " FontWeight="Bold" />
-                                                                                <TextBlock Text="{Binding Path=SessionType}" VerticalAlignment="Center"/>
-                                                                            </StackPanel>
-                                                                            <StackPanel Orientation="Horizontal" Margin="2">
-                                                                                <Label Content="Session Name: " FontWeight="Bold" />
-                                                                                <TextBlock Text="{Binding Path=SessionName}" VerticalAlignment="Center"/>
-                                                                            </StackPanel>
-                                                                            <StackPanel Orientation="Horizontal" Margin="2">
-                                                                                <Label Content="State: " FontWeight="Bold" />
-                                                                                <TextBlock Text="{Binding Path=State}" VerticalAlignment="Center"/>
-                                                                            </StackPanel>
-                                                                        </WrapPanel>
-                                                                    </StackPanel>
-                                                                </Border>
-                                                            </DataTemplate>
-                                                        </ListBox.ItemTemplate>
-                                                    </ListBox>
+                                                <GroupBox Header="Logged In Users" Margin="2" MaxHeight="200" Visibility="{Binding ElementName=LoggedInUsers, Path=HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="auto" />
+                                                        </Grid.RowDefinitions>
+                                                        <ListBox x:Name="LoggedInUsers" ItemsSource="{Binding Path=LoggedInUser}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+                                                            <ListBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border BorderBrush="SlateBlue" BorderThickness="1" HorizontalAlignment="Stretch">
+                                                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                                                            <TextBlock Text="{Binding Path=UserName}" HorizontalAlignment="Center" FontSize="15" FontWeight="Bold" />
+                                                                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                                                                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                    <Label Content="Session Id: " FontWeight="Bold" />
+                                                                                    <TextBlock Text="{Binding Path=SessionId}" VerticalAlignment="Center"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                    <Label Content="Session Type: " FontWeight="Bold" />
+                                                                                    <TextBlock Text="{Binding Path=SessionType}" VerticalAlignment="Center"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                    <Label Content="Session Name: " FontWeight="Bold" />
+                                                                                    <TextBlock Text="{Binding Path=SessionName}" VerticalAlignment="Center"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                    <Label Content="State: " FontWeight="Bold" />
+                                                                                    <TextBlock Text="{Binding Path=State}" VerticalAlignment="Center"/>
+                                                                                </StackPanel>
+                                                                            </WrapPanel>
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ListBox.ItemTemplate>
+                                                        </ListBox>
+                                                        <Button x:Name="LogOffUserButton" Content="Log Off" Grid.Column="0" Grid.Row="1" Margin="5" />
+                                                        <Button x:Name="ShowUserProcessesButton" Content="Show Processes" Grid.Column="1" Grid.Row="1" Margin="5" />
+                                                    </Grid>
                                                 </GroupBox>
                                             </StackPanel>
                                         </Border>
@@ -228,7 +274,10 @@
                         </ScrollViewer>
                     </GroupBox>
 
-                    <GroupBox x:Name="addedComputersGroupbox" Header="Added Computers" Margin="5" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
+                    <Button x:Name="HideAddedComputersButton" Content="v" Grid.Row="2" Grid.Column="1" Background="Transparent" BorderBrush="Transparent"  />
+                    <Separator Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2" />
+
+                    <GroupBox x:Name="addedComputersGroupbox" Header="Added Computers" Margin="5" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="3">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -270,7 +319,7 @@
                             <Button x:Name="RemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="2" />
                         </Grid>
                     </GroupBox>
-                    <GroupBox x:Name="Logging" Header="Export Logs" Margin="5" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
+                    <GroupBox x:Name="LoggingGroupBox" Header="Export Logs" Margin="5" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="3">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -638,7 +687,6 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
-
                             <Button x:Name="ThermalStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
                             <Button x:Name="ThermalStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
                             <Button x:Name="ThermalRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />

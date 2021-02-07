@@ -19,12 +19,63 @@ function New-UIRunspace{
             $UIHash.CPUTabPage = $MainWindow.FindName("DiskTabPage")
             $UIHash.CPUTabPage = $MainWindow.FindName("ThermalTabPage")
 
+            #Groupbox
+            $UIHash.addedComputersGroupbox = $MainWindow.FindName("addedComputersGroupbox")
+            $UIHash.LoggingGroupBox = $MainWindow.FindName("LoggingGroupBox")
+            $UIHash.ComputerInfoGroupBox = $MainWindow.FindName('ComputerInfo')
+            $UIHash.ComputerInfoGroupBox.Add_MouseEnter({
+                if ($UIHash.ADButton -eq $null -and $UIHash.ItemContainerGenerator.Items -ne $Null){
+                    $presenter = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0)
+
+                    $UIHash.ADButton = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("ADButton",$presenter)
+                    $UIHash.LoggedInUsers = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("LoggedInUsers",$presenter)
+                    $UIHash.LogOffUserButton = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("LogOffUserButton",$presenter)
+
+                    $UIHash.ADButton.Add_MouseDoubleClick({
+                        Show-Object $this
+                    })
+
+                    $UIHash.LoggedInUsers.ADD_SelectionChanged({
+                        if ($_.AddedItems){
+                            $DataHash.LoggedInUsersSelectedItem = $_.AddedItems
+                            #$UIHash.LogOffUserButton.Dispatcher.Invoke([action]{$UIHash.LogOffUserButton.IsEnabled = $true})
+                        }
+                        else{
+                            $UIHash.LogOffUserButton.IsEnabled = $false
+                        }
+                    })
+
+                    $UIHash.LoggedInUsers.ADD_MouseDoubleClick({
+                        try{
+                            Show-Object $this
+                        }
+                        catch{
+                            Show-Messagebox -Text $_.Exception.Message -Title "Double Click Logged In User Box Error" -Icon Error
+                        }
+                    })
+
+                    $UIHash.LogOffUserButton.Add_Click({
+                        try{
+                            $DataHash.LoggedInUsersSelectedItem.LogOffUser()
+                            $UIHash.LoggedInUser.Items.Remove($DataHash.LoggedInUsersSelectedItem)
+                        }
+                        catch{
+                            Show-Messagebox -Text $_.Exception.Message -Title "Log Off User" -Icon Information
+                        }
+                    })
+                }
+            })
+
+            #GridRows
+            $UIHash.rowSeparator = $MainWindow.FindName("rowSeparator")
+
             #Buttons
             $UIHash.AddComputerButton = $MainWindow.FindName("AddComputerButton")
             $UIHash.SelectAllButton = $MainWindow.FindName("SelectAllButton")
             $UIHash.DeSelectAllButton = $MainWindow.FindName("DeSelectAllButton")
             $UIHash.RemoveSelectedButton = $MainWindow.FindName("RemoveSelectedButton")
             $UIHash.FolderExplorerButton = $MainWindow.FindName("FolderExplorerButton")
+            $UIHash.HideAddedComputersButton = $MainWindow.FindName("HideAddedComputersButton")
 
             $UIHash.CPUStartButton = $MainWindow.FindName("cpuStartButton")
             $UIHash.CPUStopButton = $MainWindow.FindName("cpuStopButton")
@@ -69,6 +120,9 @@ function New-UIRunspace{
 
             #Item Control
             $UIHash.ComputerOverview = $MainWindow.FindName("ComputerOverview")
+            #$UIHash.ComputerOverviewTemplate = $UIHash.ComputerOverview.ItemTemplate
+            $UIHash.ItemContainerGenerator = $UIHash.ComputerOverview.ItemContainerGenerator
+
 
             #Comboboxes
             $UIHash.CPUDefaultCounterComboBox = $MainWindow.FindName("defaultCPUCounterCombobox")
@@ -220,6 +274,7 @@ function New-UIRunspace{
                 if ($UIHash.computerListbox.SelectedItem -ne $null){
                     try{
                         $UIHash.ComputerOverview.Items.Clear()
+                        $UIHash.ADButton = $null
                         $Ping = New-PingRunspace
                         $Ping.Runspacepool = $ScriptsHash.RunspacePool
                         $Ping.BeginInvoke()
@@ -593,6 +648,20 @@ function New-UIRunspace{
                 }
             })
 
+            $UIHash.HideAddedComputersButton.ADD_Click({
+                if ($UIHash.addedComputersGroupbox.Visibility -eq [System.Windows.Visibility]::Visible){
+                    $UIHash.addedComputersGroupbox.Visibility = [System.Windows.Visibility]::Collapsed
+                    $UIHash.LoggingGroupBox.Visibility = [System.Windows.Visibility]::Collapsed
+                    $UIHash.rowSeparator.Height = "auto"
+                    $this.Content = ">"
+                }
+                else{
+                    $UIHash.addedComputersGroupbox.Visibility = [System.Windows.Visibility]::Visible
+                    $UIHash.LoggingGroupBox.Visibility = [System.Windows.Visibility]::Visible
+                    $UIHash.rowSeparator.Height = "*"
+                    $this.Content = "v"
+                }
+            })
 
             #CPU
             $UIHash.CPUStartButton.ADD_Click({

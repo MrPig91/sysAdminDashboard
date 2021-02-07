@@ -32,7 +32,7 @@ function Start-ComputerScan {
         }
 
          try{
-            $loggedinUsers = Get-LoggedInUser -ComputerName $computer.ComputerName
+            $loggedinUsers = Get-pmLoggedInUser -ComputerName $computer.ComputerName
             $loggedinuserList = New-Object System.Collections.ObjectModel.ObservableCollection[System.Object]
             [System.Windows.Data.BindingOperations]::EnableCollectionSynchronization($loggedinuserList, [System.Object]::new())
             foreach ($user in $LoggedinUsers){
