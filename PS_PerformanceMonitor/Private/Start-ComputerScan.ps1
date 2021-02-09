@@ -43,5 +43,39 @@ function Start-ComputerScan {
         catch{
             Write-Information "Unable to grab logged in users"
         }
+
+        #Computer Spec Groupbox
+        try{
+            $Bios = Get-CimInstance -ClassName Win32_BIOS -CimSession $Session
+            $HardwareInfo = Get-CimInstance -Class win32_computersystem -CimSession $Session -Property TotalPhysicalMemory,Model,Name,Manufacturer,SystemSKUNumber,UserName |
+                    Select-Object -Property @{n="RAM";e={$_.TotalPhysicalMemory / 1gb -as [int]}},Manufacturer,name,Model,SystemSKUNumber,Username
+            $OperatingSystem = Get-CimInstance -ClassName Win32_OperatingSystem -CimSession $Session -Property LastBootUpTime,Version
+            $Processor = Get-CimInstance -Query "Select Name from win32_Processor" -CimSession $Session
+
+            $Uptime = (Get-Date) - $OperatingSystem.LastBootUpTime
+            if ($Uptime.Days -eq 0){
+                $Uptime = $Uptime.ToString("hh' hours 'mm' minutes'")
+            }
+            else{
+                $Uptime = $Uptime.ToString("dd' days 'hh' hours'")
+            }
+            
+            $overview = [PSCustomObject]@{
+                Bios = $Bios
+                TotalRAM = $HardwareInfo.RAM
+                Model = $HardwareInfo.Model
+                Manufacturer = $HardwareInfo.Manufacturer
+                CurrentUser = $HardwareInfo.UserName.ToLower()
+                SKUNumber = $HardwareInfo.SystemSKUNumber
+                LastBootUpTime = $OperatingSystem.LastBootUpTime.ToString("MM/dd/yy")
+                Uptime = $Uptime
+                Processor = $Processor.Name
+            }
+
+            $Computer.Overview = $overview
+        }
+        catch{
+            Write-Information "Unable to grab Computer Spec Info"
+        }
     }
 }
