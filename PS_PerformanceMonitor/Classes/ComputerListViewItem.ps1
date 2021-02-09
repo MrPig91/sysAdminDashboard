@@ -44,11 +44,20 @@ public class ComputerListViewItem : INotifyPropertyChanged
         private ObservableCollection<System.Object> _loggedinuser;
         private string _onoroff;
         private bool _online;
+        private System.Object _overview;
 
         public string ComputerName { get; set; }
         public string IPAddress { get; set; }
         public string SerialNumber { get; set; }
         public string OperatingSystem { get; set; }
+        public System.Object Overview
+        {
+            get {return _overview;}
+            set{
+                _overview = value;
+                NotifyPropertyChanged("Overview");
+            }
+        }
         public bool Online
         {
             get {return _online;}
