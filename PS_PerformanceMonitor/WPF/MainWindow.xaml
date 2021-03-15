@@ -1,11 +1,13 @@
-﻿<Window
+﻿<Window 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:qc="clr-namespace:QuickConverter;assembly=QuickConverter"
+
         xmlns:local="clr-namespace:Performance_Monitor"
-        Title="MainWindow" Height="550" Width="800">
+        Title="MainWindow" Height="600" Width="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate x:Key="FirstCell">
@@ -14,11 +16,87 @@
                     RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}}"/>
             </StackPanel>
         </DataTemplate>
+        <Style x:Key="OnOrOff" TargetType="{x:Type TextBlock}">
+            <Style.Triggers>
+                <Trigger Property="Text" Value="Online">
+                    <Setter Property="Foreground" Value="ForestGreen" />
+                </Trigger>
+                <Trigger Property="Text" Value="Offline">
+                    <Setter Property="Foreground" Value="Crimson" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ToolTip">
+            <Style.Resources>
+                <Style TargetType="ContentPresenter">
+                    <Style.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </Style.Resources>
+                </Style>
+            </Style.Resources>
+            <Setter Property="MaxWidth" Value="500" />
+        </Style>
+
+        <Style x:Key="counterListViewItems" TargetType="{x:Type ListViewItem}">
+            <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+            <Setter Property="BorderThickness" Value=".5"></Setter>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="{Binding Path=LineColor}" Opacity=".35"></SolidColorBrush>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="{Binding Path=LineColor}" Opacity=".55"></SolidColorBrush>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"></Condition>
+                        <Condition Property="IsSelected" Value="True"></Condition>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="{Binding Path=LineColor}" Opacity=".6"></SolidColorBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderBrush">
+                        <Setter.Value>
+                            <SolidColorBrush Color="{Binding Path=LineColor}"></SolidColorBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderThickness" Value="2"></Setter>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="false"></Condition>
+                        <Condition Property="IsSelected" Value="True"></Condition>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="{Binding Path=LineColor}" Opacity=".55"></SolidColorBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderBrush">
+                        <Setter.Value>
+                            <SolidColorBrush Color="{Binding Path=LineColor}"></SolidColorBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderThickness" Value="2"></Setter>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="5" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -27,24 +105,26 @@
             <RowDefinition Height="5" />
         </Grid.RowDefinitions>
 
-        <TabControl x:Name="MainTabControl" Grid.Column="1" Grid.Row="1" Height="auto" Width="auto">
+        <TabControl x:Name="MainTabControl" Grid.Column="1" Grid.Row="1" Height="auto" Width="auto" Grid.ColumnSpan="2">
             <TabItem x:Name="SetupTab" Header="Setup" Height="auto" Width="auto">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" MaxWidth="200" />
+                        <ColumnDefinition Width="2.5*" />
                         <ColumnDefinition Width="5" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="5" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="1.5*" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition x:Name="rowSeparator" Height="*" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="5" />
                     </Grid.RowDefinitions>
 
-                    <GroupBox x:Name="ComputerSearchGroupbox" Header="Computer Search" Margin="5" Grid.Column="1" Grid.Row="1">
+                    <GroupBox x:Name="ComputerSearchGroupbox" Header="Computer Search" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -60,11 +140,260 @@
 
                             <TextBox x:Name="computerSearchbox" Grid.Column="1" Grid.Row="1" Width="auto" Margin="5"></TextBox>
                             <ListBox x:Name="computerListbox" Grid.Column="1" Grid.Row="2" Margin="5" Width="auto" MinHeight ="75"></ListBox>
-                            <Button x:Name="AddComputerButton" Content="Add" Grid.Column="1" Grid.Row="3" Margin="5"></Button>
+                            <Button x:Name="AddComputerButton" Content="Add" Grid.Column="1" Grid.Row="3" Margin="5" ToolTip="Pings the computer and adds it to the list to gather counters from."></Button>
                         </Grid>
                     </GroupBox>
+                    <GroupBox x:Name="ComputerInfo" Header="Computer Information" Margin="5" Grid.Column="3" Grid.Row="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="ComputerOverview" Margin="2" ScrollViewer.CanContentScroll="True">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:Name="ItemDataTemplate">
+                                        <DataTemplate.Resources>
+                                            <ControlTemplate x:Key="RoundedButtonTemplate" TargetType="{x:Type Button}">
+                                                <Border x:Name="border" 
+                                                    CornerRadius="5" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                                    <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsDefaulted" Value="True">
+                                                        <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" TargetName="border" Value="#FFBEE6FD"/>
+                                                        <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" TargetName="border" Value="#FFC4E5F6"/>
+                                                        <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                                                    </Trigger>
+                                                    <Trigger Property="ToggleButton.IsChecked" Value="True">
+                                                        <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
+                                                        <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                                                        <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                                                        <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#FF838383"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                            <Style TargetType="Label">
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="LightGray"/>
+                                                <Setter Property="Template" Value="{StaticResource RoundedButtonTemplate}" />
+                                            </Style>
+                                        </DataTemplate.Resources>
+                                        <Border x:Name="itemBorder" BorderThickness="2" CornerRadius="2">
+                                            <Border.Style>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=OnOrOff}" Value="Online">
+                                                            <Setter Property="BorderBrush" Value="ForestGreen" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Path=OnOrOff}" Value="Offline">
+                                                            <Setter Property="BorderBrush" Value="Crimson" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Vertical" Margin="5">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding Path=ComputerName, StringFormat={}{0}}" FontSize="20" FontWeight="Bold"></TextBlock>
+                                                    <TextBlock Text=" - " FontSize="20" FontWeight="Bold"></TextBlock>
+                                                    <TextBlock Text="{Binding Path=OnOrOff, StringFormat={}{0}}" FontSize="20" FontWeight="Bold" Style="{StaticResource OnOrOff}" />
+                                                </StackPanel>
+                                                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                                                <UniformGrid x:Name="TopUGrid" Columns="{qc:Binding '800 > $P ? 1 : 2', P={Binding ElementName=TopUGrid,Path=ActualWidth}}">
+                                                    <GroupBox x:Name="ComputerOVGroupbox" Margin="2" Header="Computer Overview" Visibility="{Binding Path=Online, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <StackPanel Orientation="Vertical">
+                                                            <WrapPanel Orientation="Horizontal">
+                                                                <StackPanel Orientation="Vertical" Margin="5">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Serial Number: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.Bios.SerialNumber}" VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Manufacturer: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.Manufacturer}" VerticalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Last Bootup Time: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.LastBootUpTime}" VerticalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Total RAM: " />
+                                                                        <Button x:Name="RAMButton" BorderBrush="Transparent" BorderThickness="0" Background="Transparent">
+                                                                            <Button.Content>
+                                                                                <TextBlock Text="{Binding Path=Overview.TotalRAM}" />
+                                                                            </Button.Content>
+                                                                        </Button>
+                                                                    </StackPanel>
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Vertical" Margin="5">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="SKUNumber: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.SKUNumber}" VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Model: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.Model}"  VerticalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Uptime: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.Uptime}" VerticalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Label Content="Current User: " />
+                                                                        <TextBlock Text="{Binding Path=Overview.CurrentUser}" VerticalAlignment="Center" />
+                                                                    </StackPanel>
+                                                                </StackPanel>
+                                                            </WrapPanel>
+                                                            <StackPanel Orientation="Horizontal" Margin="5,0,5,0">
+                                                                <Label Content="Processor: " />
+                                                                <TextBlock Text="{Binding Path=Overview.Processor}" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </GroupBox>
+                                                    <GroupBox Header="Actions" Margin="2" Visibility="{Binding Path=Online, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="5" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="5" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="5" />
+                                                                <RowDefinition Height="*" />
+                                                                <RowDefinition Height="*" />
+                                                                <RowDefinition Height="*" />
+                                                                <RowDefinition Height="5" />
+                                                            </Grid.RowDefinitions>
+                                                            <Button x:Name="RestartButton" Content="Restart" Margin="5" Grid.Column="1" Grid.Row="1" />
+                                                            <Button x:Name="GetServicesButton" Content="Get Services" Margin="5" Grid.Column="1" Grid.Row="2" />
+                                                            <Button x:Name="GetProcessesButton" Content="Get Processes" Margin="5" Grid.Column="1" Grid.Row="3" />
+                                                            <Button x:Name="GetLAPSButton" Content="Get LAPS Password" Margin="5" Grid.Column="2" Grid.Row="1" />
+                                                            <Button x:Name="GetResetLAPSButton" Content="Reset LAPS Password" Margin="5" Grid.Column="1" Grid.Row="2" />
+                                                        </Grid>
+                                                    </GroupBox>
+                                                </UniformGrid>
+                                                <UniformGrid x:Name="UGrid" Columns="{qc:Binding '400 > $P ? 1 : (800 > $P ? 2 : 3)', P={Binding ElementName=UGrid,Path=ActualWidth}}">
+                                                    <GroupBox x:Name="ADGroupBox" Header="Active Directory Info" Margin="2">
+                                                        <Button x:Name="ADButton" BorderBrush="AliceBlue" Background="Transparent" BorderThickness="0">
+                                                            <Button.Content>
+                                                                <Grid>
+                                                                    <WrapPanel x:Name="ADWrapPanel" Orientation="Horizontal">
+                                                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                                                            <Label Content="IPAddress: " FontWeight="Bold" ></Label>
+                                                                            <TextBlock Text="{Binding Path=IPAddress}" VerticalAlignment="Center"></TextBlock>
+                                                                        </StackPanel>
+                                                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                                                            <Label Content="Serial Number: " FontWeight="Bold" ></Label>
+                                                                            <TextBlock Text="{Binding Path=SerialNumber}" VerticalAlignment="Center"></TextBlock>
+                                                                        </StackPanel>
+                                                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                                                            <Label Content="OS: " FontWeight="Black" ToolTip="Operating System" />
+                                                                            <TextBlock Text="{Binding Path=OperatingSystem}" VerticalAlignment="Center" />
+                                                                        </StackPanel>
+                                                                    </WrapPanel>
+                                                                </Grid>
+                                                            </Button.Content>
+                                                        </Button>
+                                                    </GroupBox>
+                                                    <GroupBox Header="Disk Info" Margin="2" Visibility="{Binding Path=Online, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="auto" />
+                                                            </Grid.ColumnDefinitions>
 
-                    <GroupBox x:Name="ComputerInfo" Header="Computer Information" Margin="5" Grid.Column="2" Grid.Row="1">
+                                                            <WrapPanel Orientation="Horizontal" Margin=".5" Grid.Column="0">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Label Content="Total Size: " FontWeight="Bold"/>
+                                                                    <TextBlock Text="{Binding Path=diskInfo.TotalSize}" VerticalAlignment="Center" ToolTip="Gigabytes (GB)"/>
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                    <Label Content="Percent Free: " FontWeight="Bold" />
+                                                                    <TextBlock Text="{Binding Path=diskInfo.PercentFree, StringFormat={}{0}%}" VerticalAlignment="Center" />
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                    <Label Content="Free Space: " FontWeight="Bold" Foreground="ForestGreen" />
+                                                                    <TextBlock Text="{Binding Path=diskInfo.FreeSpace}" VerticalAlignment="Center" ToolTip="Gigabytes (GB)"/>
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                                    <Label Content="Used Space: " Foreground="Crimson" FontWeight="Bold" />
+                                                                    <TextBlock Text="{Binding Path=diskInfo.UsedSpace}" VerticalAlignment="Center" ToolTip="Gigabytes (GB)" />
+                                                                </StackPanel>
+                                                            </WrapPanel>
+                                                            <lvc:PieChart Name="DiskInfo" HorizontalAlignment="Center"  Grid.Column="1" Margin=".5" Visibility="{Binding Path.diskInfo.HasData, Converter={StaticResource BooleanToVisibilityConverter}}" MinHeight="125" MinWidth="125">
+                                                                <lvc:PieChart.Series>
+                                                                    <lvc:PieSeries  Title="Used Space" Values="{Binding Path=diskInfo.UsedSpaceValues}" Fill="Crimson" VerticalAlignment="Center" DataLabels="True"/>
+                                                                    <lvc:PieSeries Title="Free Space" Values="{Binding Path=diskInfo.FreeSpaceValues}" Fill="ForestGreen" DataLabels="True" VerticalAlignment="Center"/>
+                                                                </lvc:PieChart.Series>
+                                                            </lvc:PieChart>
+                                                        </Grid>
+                                                    </GroupBox>
+                                                    <GroupBox Header="Logged In Users" Margin="2" MaxHeight="200" Visibility="{Binding ElementName=LoggedInUsers, Path=HasItems, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="*" />
+                                                                <RowDefinition Height="auto" />
+                                                            </Grid.RowDefinitions>
+                                                            <ListBox x:Name="LoggedInUsers" ItemsSource="{Binding Path=LoggedInUser}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Border BorderBrush="SlateBlue" BorderThickness="1" HorizontalAlignment="Stretch">
+                                                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                                                                <TextBlock Text="{Binding Path=UserName}" HorizontalAlignment="Center" FontSize="15" FontWeight="Bold" />
+                                                                                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                                                                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                        <Label Content="Session Id: " FontWeight="Bold" />
+                                                                                        <TextBlock Text="{Binding Path=SessionId}" VerticalAlignment="Center"/>
+                                                                                    </StackPanel>
+                                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                        <Label Content="Session Type: " FontWeight="Bold" />
+                                                                                        <TextBlock Text="{Binding Path=SessionType}" VerticalAlignment="Center"/>
+                                                                                    </StackPanel>
+                                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                        <Label Content="Session Name: " FontWeight="Bold" />
+                                                                                        <TextBlock Text="{Binding Path=SessionName}" VerticalAlignment="Center"/>
+                                                                                    </StackPanel>
+                                                                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                                                                        <Label Content="State: " FontWeight="Bold" />
+                                                                                        <TextBlock Text="{Binding Path=State}" VerticalAlignment="Center"/>
+                                                                                    </StackPanel>
+                                                                                </WrapPanel>
+                                                                            </StackPanel>
+                                                                        </Border>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>
+                                                            <Button x:Name="LogOffUserButton" Content="Log Off" Grid.Column="0" Grid.Row="1" Margin="5" />
+                                                            <Button x:Name="ShowUserProcessesButton" Content="Show Processes" Grid.Column="1" Grid.Row="1" Margin="5" />
+                                                        </Grid>
+                                                    </GroupBox>
+                                                </UniformGrid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <Button x:Name="HideAddedComputersButton" Content="v" Grid.Row="2" Grid.Column="1" Background="Transparent" BorderBrush="Transparent"  />
+                    <Separator Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2" />
+
+                    <GroupBox x:Name="addedComputersGroupbox" Header="Added Computers" Margin="5" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="3">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
@@ -94,6 +423,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </ListView.Resources>
+
                                 <ListView.View>
                                     <GridView x:Name="ListViewGrid">
                                         <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
@@ -105,46 +435,13 @@
                             <Button x:Name="RemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="2" />
                         </Grid>
                     </GroupBox>
-
-                    <GroupBox x:Name="DefaultCountersGroupBox" Header="Default Counters and Interval Time" Margin="5" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="5" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="5" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="5" />
-                            </Grid.RowDefinitions>
-
-                            <Label Content="CPU" Grid.Column="1" Grid.Row="1" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultCPUCounterCombobox" Grid.Column="1" Grid.Row="2" Margin="5"></ComboBox>
-                            <Label Content="Network" Grid.Column="2" Grid.Row="1" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultNetworkCounterCombobox" Grid.Column="2" Grid.Row="2" Margin="5"></ComboBox>
-                            <Label Content="Disk" Grid.Column="3" Grid.Row="1" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultDiskCounterCombobox" Grid.Column="3" Grid.Row="2" Margin="5"></ComboBox>
-                            <Label Content="Memory" Grid.Column="1" Grid.Row="3" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultMemoryCounterCombobox" Grid.Column="1" Grid.Row="4" Margin="5"></ComboBox>
-                            <Label Content="Thermals" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Center" />
-                            <ComboBox x:Name="defaultThermalCounterCombobox" Grid.Column="2" Grid.Row="4" Margin="5"></ComboBox>
-
-                            <Label Content="{Binding ElementName=timeIntervalTrack, Path=Value}" ContentStringFormat="Time Interval - {0} second(s)"  Grid.Column="3" Grid.Row="3" HorizontalContentAlignment="Center"/>
-                            <Slider x:Name="timeIntervalTrack" Grid.Column="3" Value="2" Grid.Row="4" Margin="5" TickPlacement="BottomRight" Maximum="10" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" />
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox x:Name="Logging" Header="Export Logs" Margin="5" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
+                    <GroupBox x:Name="LoggingGroupBox" Header="Export Logs" Margin="5" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="3">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="5" />
                                 <ColumnDefinition Width="115" />
                                 <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="35" />
                                 <ColumnDefinition Width="75" />
                                 <ColumnDefinition Width="5" />
                             </Grid.ColumnDefinitions>
@@ -154,9 +451,10 @@
                                 <RowDefinition Height="5" />
                             </Grid.RowDefinitions>
 
-                            <CheckBox Content="Enable Logging" x:Name="LogCheckbox" Grid.Column="1" Grid.Row="1" Margin="5" VerticalAlignment="Center" />
-                            <TextBox x:Name="LogPathTextbox" Margin="5" Grid.Column="2" Grid.Row="1" Width="auto" IsEnabled="{Binding ElementName=LogCheckbox, Path=IsChecked}"/>
-                            <ComboBox x:Name="fileExtCombobox" Grid.Column="3" Grid.Row="1" Margin="5" SelectedIndex="0"  IsEnabled="{Binding ElementName=LogCheckbox, Path=IsChecked}">
+                            <CheckBox Content="Enable Logging" x:Name="LogCheckbox" Grid.Column="1" Grid.Row="1" Margin="5" VerticalAlignment="Center" ToolTip="Export the results as they are generated to a file"/>
+                            <TextBox x:Name="LogPathTextbox" Margin="5" Grid.Column="2" Grid.Row="1" Width="auto" IsEnabled="{Binding ElementName=LogCheckbox, Path=IsChecked}" ToolTip="Folder to save logs to (file name auto-generated)"/>
+                            <Button x:Name="FolderExplorerButton" Content="..." Margin="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="3" Grid.Row="1" ToolTip="Folder Explorer" IsEnabled="{Binding ElementName=LogCheckbox, Path=IsChecked}"></Button>
+                            <ComboBox x:Name="fileExtCombobox" Grid.Column="4" Grid.Row="1" Margin="5" SelectedIndex="0"  IsEnabled="{Binding ElementName=LogCheckbox, Path=IsChecked}" ToolTip="File format (file extension)">
                                 <ComboBoxItem>BLG</ComboBoxItem>
                                 <ComboBoxItem>CSV</ComboBoxItem>
                                 <ComboBoxItem>TSV</ComboBoxItem>
@@ -195,6 +493,8 @@
                                 <RowDefinition Height="2*" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
                                 <RowDefinition Height="5" />
                             </Grid.RowDefinitions>
                             <Grid x:Name="liveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
@@ -207,13 +507,7 @@
                                     </lvc:CartesianChart.AxisX>
                                 </lvc:CartesianChart>
                             </Grid>
-                            <ListView x:Name="cpuListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" >
-                                <ListView.Resources>
-                                    <Style TargetType="{x:Type ListViewItem}">
-                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
-                                        <Setter Property="BorderThickness" Value="2"></Setter>
-                                    </Style>
-                                </ListView.Resources>
+                            <ListView x:Name="cpuListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ItemContainerStyle="{StaticResource counterListViewItems}">
                                 <ListView.View>
                                     <GridView x:Name="cpuGridView">
                                         <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
@@ -226,6 +520,300 @@
                             <Button x:Name="cpuRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
                             <Slider x:Name="cpulineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
                             <ComboBox x:Name="cpuLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+
+                            <ComboBox x:Name="defaultCPUCounterCombobox" Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" Margin="5" ToolTip=""></ComboBox>
+                            <Slider x:Name="CPUTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+                            <Label Content="{Binding ElementName=CPUTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="NetworkTabPage" Header="Network">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="NetworkGraphGroupbox" Header="Network Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="NetworkliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="NetworkLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="NetworkListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ItemContainerStyle="{StaticResource counterListViewItems}">
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="NetworkGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="NetworkStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="NetworkStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="NetworkRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="NetworklineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="NetworkLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+
+                            <ComboBox x:Name="defaultNetworkCounterCombobox" Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" Margin="5"></ComboBox>
+                            <Label Content="{Binding ElementName=NetworkTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="NetworkTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="MemoryTabPage" Header="Memory">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="MemoryGraphGroupbox" Header="Memory Utilization" Margin="5,5,0,5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="MemoryliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="MemoryLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="MemoryListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ItemContainerStyle="{StaticResource counterListViewItems}">
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="MemoryGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="MemoryStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="MemoryStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="MemoryRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="MemorylineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="MemoryLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+                            <ComboBox x:Name="defaultMemoryCounterCombobox" Grid.Column="1" Grid.Row="5" Margin="5" Grid.ColumnSpan="2"></ComboBox>
+                            <Label Content="{Binding ElementName=MemoryTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="MemoryTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="DiskTabPage" Header="Disk">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="DiskGraphGroupbox" Header="Disk Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="DiskliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="DiskLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="DiskListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ItemContainerStyle="{StaticResource counterListViewItems}">
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="DiskGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <Button x:Name="DiskStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="DiskStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="DiskRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="DisklineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="DiskLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+                            <ComboBox x:Name="defaultDiskCounterCombobox" Grid.Column="1" Grid.Row="5" Margin="5" Grid.ColumnSpan="2"></ComboBox>
+                            <Label Content="{Binding ElementName=DiskTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="DiskTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="ThermalTabPage" Header="Thermal">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+
+                    <GroupBox x:Name="ThermalGraphGroupbox" Header="Thermal Utilization" Margin="5" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="5" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="ThermalliveChart" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="5">
+                                <lvc:CartesianChart x:Name="ThermalLineChart" LegendLocation="None" >
+                                    <lvc:CartesianChart.AxisY>
+                                        <lvc:Axis Title="Value" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisY>
+                                    <lvc:CartesianChart.AxisX>
+                                        <lvc:Axis Title="Seconds" ></lvc:Axis>
+                                    </lvc:CartesianChart.AxisX>
+                                </lvc:CartesianChart>
+                            </Grid>
+                            <ListView x:Name="ThermalListView" Margin="5" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" ItemContainerStyle="{StaticResource counterListViewItems}">
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="BorderBrush" Value="{Binding Path=LineColor}"></Setter>
+                                        <Setter Property="BorderThickness" Value="2"></Setter>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView x:Name="ThermalGridView">
+                                        <GridViewColumn CellTemplate="{StaticResource FirstCell}" Width="30" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <Button x:Name="ThermalStartButton" Content="Start" Margin="5" Grid.Column="1" Grid.Row="3" />
+                            <Button x:Name="ThermalStopButton" Content="Stop" Margin="5" Grid.Column="2" Grid.Row="3" />
+                            <Button x:Name="ThermalRemoveSelectedButton" Content="Remove Selected" Margin="5" Grid.Column="3" Grid.Row="3" />
+                            <Slider x:Name="ThermallineThickness" Maximum="5" Minimum="1" Margin="5" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Grid.Column="4" Grid.Row="3" Value="1" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="ThermalLineColor" Grid.Column="5" Grid.Row="3" Margin="5" />
+
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" Margin="0,5,0,5" />
+                            <ComboBox x:Name="defaultThermalCounterCombobox" Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" Margin="5"></ComboBox>
+                            <Label Content="{Binding ElementName=ThermalTimeSlider, Path=Value}" ContentStringFormat="Interval - {0} second(s)"  Grid.Column="3" Grid.Row="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <Slider x:Name="ThermalTimeSlider" Grid.Column="4" Value="2" Grid.Row="5" Margin="5" TickPlacement="BottomRight" Maximum="30" Minimum="1" TickFrequency="1" IsSnapToTickEnabled="True" ToolTip="The frequency in which the counters are generated" Grid.ColumnSpan="2"/>
+
                         </Grid>
                     </GroupBox>
                 </Grid>

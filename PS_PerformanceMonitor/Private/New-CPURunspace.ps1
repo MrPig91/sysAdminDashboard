@@ -8,41 +8,38 @@ function New-CPURunspace {
     
         try{
             $X = Get-Date
-            #if ($CPUHash.RadioOFF.Checked){
-                $UIHash.CPUDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.CPUCounter = $UIHash.CPUDefaultCounterComboBox.SelectedItem.Counter})
-            #}
-            #else{
-             #  $Counters = $CPUHash.ListView.Items.Name
-            #}
+
+            $UIHash.CPUDefaultCounterComboBox.Dispatcher.Invoke([action]{$DataHash.CPUCounter = $UIHash.CPUDefaultCounterComboBox.SelectedItem.Counter})
+
             $computers = $DataHash.addedComputers | where IsChecked -eq $true
-            $UIHash.TimeIntervalSlider.Dispatcher.Invoke([action]{$DataHash.CPUIntervalX = $UIHash.TimeIntervalSlider.Value})
-            $DataHash.X -= $DataHash.CPUIntervalX
+            $UIHash.CPUTimeTimeSlider.Dispatcher.Invoke([action]{$DataHash.CPUIntervalX = $UIHash.CPUTimeTimeSlider.Value})
+            $DataHash.CPUX -= $DataHash.CPUIntervalX
     
             Get-Counter -Counter $DataHash.CPUCounter -Continuous -ComputerName $computers.ComputerName -SampleInterval $DataHash.CPUIntervalX -ErrorAction Stop -ErrorVariable ErrVar -OutVariable CPULogs |
             select -expandProperty CounterSamples |
              foreach -Begin {
                 $CPUFilePrefix = Get-Date -Format "yyyyMMdd(s)"
              } -Process {
-                if ($DataHash.SeriesCollectionTitles.Title -notcontains $_.Path){
+                if ($DataHash.CPUSeriesCollectionTitles.Title -notcontains $_.Path){
                     $newRandomColor = ([System.Windows.Media.Colors] | gm -Static -MemberType Properties)[(Get-Random -Minimum 0 -Maximum 141)].Name
     
-                    $plus1 = ($DataHash.SeriesCollectionTitles | Measure).Count + 1
+                    $plus1 = ($DataHash.CPUSeriesCollectionTitles | Measure).Count + 1
                     $newIndex = [PSCustomObject]@{
                         Title = $_.Path
                         Index = $plus1
                     }
     
-                    $DataHash.SeriesCollectionTitles.Add($newIndex)
-                    $newCounterListViewItem = $DataHash.ListViewList[$plus1]
+                    $DataHash.CPUSeriesCollectionTitles.Add($newIndex)
+                    $newCounterListViewItem = $DataHash.CPUListViewList[$plus1]
                     $newCounterListViewItem.Name = $_.Path
                     $newCounterListViewItem.Counter = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[0])
                     $newCounterListViewItem.ComputerName = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[0])
-                    $newCounterListViewItem.Instance =  ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[1].split('(')[1].trimend(')'))
+                    $newCounterListViewItem.Instance =  $_.InstanceName
                     $newCounterListViewItem.Units = ($_.Path.Split('\',[System.StringSplitOptions]::RemoveEmptyEntries)[2])
                     $newCounterListViewItem.Value = 0
                     $newCounterListViewItem.LineColor = $newRandomColor
                     $newCounterListViewItem.LineThickness = 2
-                    $DataHash.ListViewItems.Add($newCounterListViewItem)
+                    $DataHash.CPUListViewItems.Add($newCounterListViewItem)
     
                     $UIHash.CPULineChart.Dispatcher.Invoke([action]{
                     $UIHash.CPUChartSeries[$plus1].Title = $_.Path
@@ -59,7 +56,7 @@ function New-CPURunspace {
                     $Binding = New-Object System.Windows.Data.Binding
                     $Binding.Path = [System.Windows.PropertyPath]::new("IsChecked")
                     $Binding.Converter = [System.Windows.Controls.BooleanToVisibilityConverter]::new()
-                    $Binding.Source = $DataHash.ListViewItems | where Name -eq $_.Path
+                    $Binding.Source = $DataHash.CPUListViewItems | where Name -eq $_.Path
                         [void][System.Windows.Data.BindingOperations]::SetBinding($UIHash.CPUChartSeries[$plus1],[LiveCharts.Wpf.LineSeries]::VisibilityProperty, $Binding)
                     })
                     
@@ -67,21 +64,18 @@ function New-CPURunspace {
                 
                 if ($X -lt $_.Timestamp){
                     $X = $_.Timestamp
-                    $DataHash.X += $DataHash.CPUIntervalX
+                    $DataHash.CPUX += $DataHash.CPUIntervalX
                 }
     
                 $CookedValue = [Math]::Round($_.CookedValue,2)
-                $newPoint = [LiveCharts.Defaults.ObservablePoint]::new($DataHash.X,$CookedValue)
-                #$CPUHash.Chart.Dispatcher.Invoke([action]{(($CPUHash.Chart.Series | where Title -eq $_.Path).Values.ADD($cookedValue))})
-                $index = ($DataHash.SeriesCollectionTitles | where Title -eq $_.Path).Index
+                $newPoint = [LiveCharts.Defaults.ObservablePoint]::new($DataHash.CPUX,$CookedValue)
+
+                $index = ($DataHash.CPUSeriesCollectionTitles | where Title -eq $_.Path).Index
                 $DataHash.CPUChartValues[$index].Add($newPoint)
     
-                #$CookedValue = [Math]::Round($_.CookedValue,2)
-    
-                $Item = $DataHash.ListViewItems | where Name -eq $_.Path
+                $Item = $DataHash.CPUListViewItems | where Name -eq $_.Path
                 $Item.Value = $CookedValue
     
-                #$CPUHash.ListView.Dispatcher.Invoke([action]{$CPUHash.ListView.Items.Refresh()})
                 if ($CPUHash.Logging.Checked){
                     if (Test-Path $CPUHash.FilePath.Text){
                         $CPULogs | Export-Counter -Path "$($CPUHash.FilePath.Text.TrimEnd("\"))\$CPUFilePrefix-CPUCounterLogs.$($CPUHash.FileFormat.SelectedItem)" -FileFormat $CPUHash.FileFormat.SelectedItem -Force
@@ -90,10 +84,9 @@ function New-CPURunspace {
             }
         }
         catch{
-            [System.Windows.Forms.MessageBox]::Show($_.Exception.Message)
-            [System.Windows.Forms.MessageBox]::Show(($_ | out-string))
-            $UIHash.CPUStopButton.Enabled = $false
-            $UIHash.CPUStartButton.Enabled = $true
+            Show-Messagebox -Title "CPU Runspace" -Text "$($_.Exception.Message)" -Icon Error
+            $UIHash.CPUStopButton.Dispatcher.Invoke([action]{$UIHash.CPUStopButton.Enabled = $false})
+            $UIHash.CPUStartButton.Dispatcher.Invoke([action]{$UIHash.CPUStartButton.Enabled = $true})
         }
     }
 }
