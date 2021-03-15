@@ -30,9 +30,10 @@ function New-UIRunspace{
                     $UIHash.ADButton = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("ADButton",$presenter)
                     $UIHash.LoggedInUsers = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("LoggedInUsers",$presenter)
                     $UIHash.LogOffUserButton = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("LogOffUserButton",$presenter)
+                    $UIHash.ShowUserProcessesButton = $UIHash.ComputerOverview.ItemContainerGenerator.ContainerFromIndex(0).ContentTemplate.FindName("ShowUserProcessesButton",$presenter)
 
                     $UIHash.ADButton.Add_MouseDoubleClick({
-                        Show-Object $this
+
                     })
 
                     $UIHash.LoggedInUsers.ADD_SelectionChanged({
@@ -57,10 +58,22 @@ function New-UIRunspace{
                     $UIHash.LogOffUserButton.Add_Click({
                         try{
                             $DataHash.LoggedInUsersSelectedItem.LogOffUser()
-                            $UIHash.LoggedInUser.Items.Remove($DataHash.LoggedInUsersSelectedItem)
+                            #Show-MessageBox ($DataHash.LoggedInUsersSelectedItem | Fl | Out-String)
+                            $DataHash.SelectedComputer.LoggedInUser.RemoveAt($UIHash.$UIHash.LoggedInUsers.SelectedItem)
                         }
                         catch{
                             Show-Messagebox -Text $_.Exception.Message -Title "Log Off User" -Icon Information
+                        }
+                    })
+
+                    $UIHash.ShowUserProcessesButton.Add_Click({
+                        try{
+                            Show-Messagebox -Text "Test"
+                            $DataHash.SourceItems = Get-Process | select ProcessName,Id
+                            Show-ProcessWindow
+                        }
+                        catch{
+                            Show-Messagebox -Text $_.Exception.Message -Title "Show User Processes" -Icon Error
                         }
                     })
                 }
