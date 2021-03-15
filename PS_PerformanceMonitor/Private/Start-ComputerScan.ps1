@@ -65,7 +65,7 @@ function Start-ComputerScan {
                 TotalRAM = $HardwareInfo.RAM
                 Model = $HardwareInfo.Model
                 Manufacturer = $HardwareInfo.Manufacturer
-                CurrentUser = $HardwareInfo.UserName.ToLower()
+                CurrentUser = $HardwareInfo.UserName
                 SKUNumber = $HardwareInfo.SystemSKUNumber
                 LastBootUpTime = $OperatingSystem.LastBootUpTime.ToString("MM/dd/yy")
                 Uptime = $Uptime
@@ -75,7 +75,7 @@ function Start-ComputerScan {
             $Computer.Overview = $overview
         }
         catch{
-            Write-Information "Unable to grab Computer Spec Info"
+            Show-MessageBox "Unable to grab Computer Spec Info`n$($Error.Exception)"
         }
     }
 }
