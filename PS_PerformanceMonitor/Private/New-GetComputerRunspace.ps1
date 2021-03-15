@@ -4,9 +4,11 @@ function New-GetComputerRunspace {
         Add-Type -AssemblyName PresentationFramework
         Get-childItem -Path $DataHash.PrivateFunctions -File | ForEach-Object {Import-Module $_.FullName}
         Get-childItem -Path $DataHash.Classes -File | ForEach-Object {Import-Module $_.FullName}
-        
+        Import-Module ActiveDirectory
         $ErrorActionPreference = "Stop"
         try {
+            #allow everything to load so sleep for a second
+            sleep 1
             Get-ADComputer -Filter * -Properties IPv4Address,OperatingSystem,SerialNumber -ErrorAction Stop | foreach {
                 $computer = [ComputerListViewItem]::new($_.Name,$_.OperatingSystem,$_.IPv4Address,$_.SerialNumber,$true)
                 $DataHash.AllComputers.Add($computer)
